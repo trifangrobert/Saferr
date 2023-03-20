@@ -1,8 +1,10 @@
+import { View, Text } from 'react-native';
+
 const HomeScreen = () => {
   return (
-    <div>
-      <h1>Home Screen</h1>
-    </div>
+    <View>
+      <Text>Home</Text>
+    </View>
   );
 };
 
