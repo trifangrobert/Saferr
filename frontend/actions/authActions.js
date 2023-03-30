@@ -9,25 +9,32 @@ import {
   AUTH_LOADING,
 } from "./types";
 
-const SERVER_URL = "http://localhost:5000";
+// const SERVER_URL = process.env.SERVER_URL;
+const SERVER_URL = "http://localhost:4000";
 
 // Register user
 export const registerUser =
   ({ firstName, lastName, email, password }) =>
   async (dispatch) => {
-    console.log("registerUser action");
+    console.log("registerUser action frontend");
+    // firstName = "asds"
+    // lastName = "asd"
+    // email = "asd"
+    // password = "password"
+
     console.log("firstName: ", firstName);
     console.log("lastName: ", lastName);
     console.log("email: ", email);
+    console.log("password: ", password);
+    console.log(JSON.stringify({ firstName, lastName, email, password }));
     try {
       dispatch({ type: AUTH_LOADING });
-
+      console.log(`${SERVER_URL}/api/auth/register`);
       const res = await fetch(`${SERVER_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ firstName, lastName, email, password }),
       });
-
       const data = await res.json();
 
       if (res.ok) {
