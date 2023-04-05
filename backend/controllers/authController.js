@@ -12,7 +12,8 @@ const registerUser = asyncHandler(async (req, res) => {
   const userExists = await User.findOne({ email });
 
   if (userExists) {
-    res.status(404);
+    res.status(409);
+    res.json({ message: "User already exists" });
     throw new Error("User already exists");
   }
 
@@ -22,9 +23,12 @@ const registerUser = asyncHandler(async (req, res) => {
   if (user) {
     res.status(201).json({
       _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      },
+      token: "dummy_token" // generateToken(user._id),
     });
   } else {
     res.status(400);

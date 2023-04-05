@@ -9,50 +9,79 @@ import {
   AUTH_LOADING,
 } from "./types";
 
-// const SERVER_URL = process.env.SERVER_URL;
-const SERVER_URL = "http://localhost:4000";
+const SERVER_URL = process.env.SERVER_URL;
 
 // Register user
 export const registerUser =
   ({ firstName, lastName, email, password }) =>
   async (dispatch) => {
     console.log("registerUser action frontend");
-    // firstName = "asds"
-    // lastName = "asd"
-    // email = "asd"
-    // password = "password"
+    firstName = "Robert";
+    lastName = "Trifan";
+    email = "trifangrobert@gmail.com";
+    password = "qwertyui";
 
     console.log("firstName: ", firstName);
     console.log("lastName: ", lastName);
     console.log("email: ", email);
     console.log("password: ", password);
     console.log(JSON.stringify({ firstName, lastName, email, password }));
-    try {
-      dispatch({ type: AUTH_LOADING });
-      console.log(`${SERVER_URL}/api/auth/register`);
-      const res = await fetch(`${SERVER_URL}/api/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, email, password }),
-      });
-      const data = await res.json();
+    dispatch({ type: AUTH_LOADING });
+    console.log(`${SERVER_URL}/api/auth/register`);
 
-      if (res.ok) {
-        await AsyncStorage.setItem("token", data.token);
+    // write the bellow code using a promise
+
+    fetch(`${SERVER_URL}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ firstName, lastName, email, password }),
+    })
+      .then((res) => {
+        // console.log("res: ", res);
+        if (res.ok) {
+          return res.json();
+        } else {
+          throw new Error("Something went wrong");
+        }
+      })
+      .then((data) => {
+        console.log("data: ", data);
+        AsyncStorage.setItem("token", data.token);
         dispatch({
           type: REGISTER_SUCCESS,
           payload: { user: data.user, token: data.token },
         });
-      } else {
-        dispatch({ type: REGISTER_FAILURE, payload: data.message });
-      }
-    } catch (error) {
-      console.error(error);
-      dispatch({
-        type: REGISTER_FAILURE,
-        payload: "Server error. Please try again.",
+      })
+      .catch((error) => {
+        // console.error(error);
+        dispatch({
+          type: REGISTER_FAILURE,
+          payload: "Server error. Please try again.",
+        });
       });
-    }
+
+    //   const res = await fetch(`${SERVER_URL}/api/auth/register`, {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({ firstName, lastName, email, password }),
+    //   });
+    //   const data = await res.json();
+
+    //   if (res.ok) {
+    //     await AsyncStorage.setItem("token", data.token);
+    //     dispatch({
+    //       type: REGISTER_SUCCESS,
+    //       payload: { user: data.user, token: data.token },
+    //     });
+    //   } else {
+    //     dispatch({ type: REGISTER_FAILURE, payload: data.message });
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    //   dispatch({
+    //     type: REGISTER_FAILURE,
+    //     payload: "Server error. Please try again.",
+    //   });
   };
 
 // Login user

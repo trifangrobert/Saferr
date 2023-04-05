@@ -10,6 +10,10 @@ const authRoutes = require('./routers/authRoutes.js');
 
 const port = process.env.PORT || 4000;
 
+
+app.get('/', (req, res) => {
+    res.send("Hello World");
+});
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -23,7 +27,7 @@ app.use("/api/auth", authRoutes);
 // });
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
-    app.listen(port, () => {
+    app.listen(port, '0.0.0.0', () => {
         console.log(`Connected to MongoDB and listening on port ${port}`);
     });
 }).catch(err => {
