@@ -9,17 +9,17 @@ import {
   AUTH_LOADING,
 } from "./types";
 
-const SERVER_URL = process.env.SERVER_URL;
+const SERVER_URL = "http://10.243.59.96:4000";
 
 // Register user
 export const registerUser =
   ({ firstName, lastName, email, password }) =>
   async (dispatch) => {
     console.log("registerUser action frontend");
-    firstName = "Robert";
-    lastName = "Trifan";
-    email = "trifangrobert@gmail.com";
-    password = "qwertyui";
+    // firstName = "Robert";
+    // lastName = "Trifan";
+    // email = "trifangrobert@gmail.com";
+    // password = "qwertyui";
 
     console.log("firstName: ", firstName);
     console.log("lastName: ", lastName);

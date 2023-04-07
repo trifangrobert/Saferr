@@ -1,11 +1,11 @@
-// import 'frontend/styles/spinner.css'
+import 'frontend/styles/spinner.css'
 
-// const Spinner = () => {
-//   return (
-//     <div className='spinner' aria-label='spinner-icon'>
-//       <div className='spinner-circle'></div>
-//     </div>
-//   )
-// }
+const Spinner = () => {
+  return (
+    <div className='spinner' aria-label='spinner-icon'>
+      <div className='spinner-circle'></div>
+    </div>
+  )
+}
 
-// export default Spinner
+export default Spinner
