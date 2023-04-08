@@ -36,25 +36,29 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-// const loginUser = asyncHandler(async (req, res) => {
-//   const { email, password } = req.body
+const loginUser = asyncHandler(async (req, res) => {
+  console.log("loginUser arrived on server");
+  const { email, password } = req.body
 
-//   // check if user email exists in db
-//   const user = await User.findOne({ email })
+  // check if user email exists in db
+  const user = await User.findOne({ email })
 
-//   // return user obj if their password matches
-//   if (user && (await user.matchPassword(password))) {
-//     res.json({
-//       _id: user._id,
-//       firstName: user.firstName,
-//       email: user.email,
-//       userToken: generateToken(user._id),
-//     })
-//   } else {
-//     res.status(401)
-//     throw new Error('Invalid email or password')
-//   }
-// })
+  // return user obj if their password matches
+  if (user && (await user.matchPassword(password))) {
+    res.json({
+      _id: user._id,
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      },
+      token: "dummy_token" // generateToken(user._id),
+    })
+  } else {
+    res.status(401)
+    throw new Error('Invalid email or password')
+  }
+})
 
 // const getUserProfile = asyncHandler(async (req, res) => {
 //   // req.user was set in authMiddleware.js
@@ -73,4 +77,4 @@ const registerUser = asyncHandler(async (req, res) => {
 // })
 
 // export { registerUser, loginUser, getUserProfile }
-module.exports = { registerUser };
+module.exports = { registerUser, loginUser };

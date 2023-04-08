@@ -1,19 +1,16 @@
 import { View, Text } from "react-native";
 import { Button } from "react-native";
 
+import { useDispatch, useSelector } from "react-redux";
+
 const HomeScreen = ({navigation}) => {
-  const handleNavigateProfile = () => {
-    navigation.navigate("Profile");
-  };
-  const handleNavigateRegister = () => {
-    navigation.navigate("Register");
-  };
+
+  const { isAuthenticated } = useSelector((state) => state.auth);
   return (
     <View>
-      <Text>Home</Text>
-      <Button title="Go to Profile" onPress={handleNavigateProfile} />
-      <Button title="Go to Register" onPress={handleNavigateRegister} />
-      
+      {isAuthenticated && <Button title="Go to Profile" onPress={() => navigation.navigate("Profile")} />}
+      {!isAuthenticated && <Button title="Go to Register" onPress={() => navigation.navigate("Register")} /> }
+      {!isAuthenticated && <Button title="Go to Login" onPress={() => navigation.navigate("Login")} /> }      
     </View>
   );
 };

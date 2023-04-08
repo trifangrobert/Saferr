@@ -1,12 +1,21 @@
-const Error = ({ children, ...props }) => {
+import { Text, StyleSheet } from "react-native";
+
+const Error = (props) => {
   return (
-    <div
-      style={{ color: "#f23838", textAlign: "center", margin: "0.5rem 0" }}
-      {...props}
-    >
-      {children}
-    </div>
+    <Text style={styles.error}>
+      {props.error}
+    </Text>
   );
 };
 
 export default Error;
+
+
+const styles = StyleSheet.create({
+  error: {
+    color: "#f23838",
+    textAlign: "center",
+    margin: 10,
+  },
+});
+    
