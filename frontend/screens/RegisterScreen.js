@@ -22,14 +22,17 @@ const RegisterScreen = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [customError, setCustomError] = useState(null);
 
-  const { isLoading, user, error } = useSelector(
-    (state) => state.auth
-  );
+  const { isLoading, user, error } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (user) navigation.navigate("Profile");
+    if (user) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Home" }],
+      });
+    }
   }, [navigation.navigate, user]);
 
   const submitForm = (data) => {
@@ -59,12 +62,6 @@ const RegisterScreen = ({ navigation }) => {
 
     // transform email string to lowercase to avoid case sensitivity issues in login
     data.email = data.email.toLowerCase();
-
-    // clean the navigation stack and redirect to home
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Home" }],
-    });
 
     dispatch(registerUser(data));
   };

@@ -13,22 +13,30 @@ const ProfileScreen = ({navigation}) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!user) navigation.navigate("Home");
+    if (!user) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Home" }],
+      });
+    }
   }, [navigation.navigate, user]);
 
-
   const handleLogout = () => {
+
+    dispatch(logoutUser());
 
     navigation.reset({
       index: 0,
       routes: [{ name: "Home" }],
     });
-    dispatch(logoutUser());
   };
 
   return (
     <View>
-      <Text>Profile</Text>
+      <Text>Profile Screen</Text>
+      <Text>{user.firstName}</Text>
+      <Text>{user.lastName}</Text>
+      <Text>{user.email}</Text>
       <Button title="Logout" onPress={handleLogout} />
     </View>
   );

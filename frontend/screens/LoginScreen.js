@@ -21,12 +21,15 @@ const LoginScreen = ({ navigation }) => {
 
   const { isLoading, user, error } = useSelector((state) => state.auth);
 
-  console.log("isLoading: ", isLoading);
-    
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (user) navigation.navigate("Profile");
+    if (user) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Home" }],
+      });
+    }
   }, [navigation.navigate, user]);
 
   const submitForm = (data) => {
@@ -44,12 +47,6 @@ const LoginScreen = ({ navigation }) => {
     }
 
     data.email = data.email.toLowerCase();
-
-    // clean the navigation stack and redirect to home
-    navigation.reset({
-        index: 0,
-        routes: [{ name: "Home" }],
-    });
 
     dispatch(loginUser(data));
   };

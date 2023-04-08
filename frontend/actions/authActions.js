@@ -93,38 +93,6 @@ export const loginUser =
           payload: "Server error. Please try again.",
         });
       });
-    
-
-    // try {
-    //   dispatch({ type: AUTH_LOADING });
-
-    //   const res = await fetch(`${SERVER_URL}/api/auth/login`, {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ email, password }),
-    //   });
-
-    //   const data = await res.json();
-
-    //   if (res.ok) {
-    //     await AsyncStorage.setItem("token", data.token);
-    //     dispatch({
-    //       type: LOGIN_SUCCESS,
-    //       payload: { user: data.user, token: data.token },
-    //     });
-    //   } else {
-    //     dispatch({
-    //       type: LOGIN_FAILURE,
-    //       payload: data.message,
-    //     });
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    //   dispatch({
-    //     type: LOGIN_FAILURE,
-    //     payload: "Server error. Please try again.",
-    //   });
-    // }
   };
 
 // Logout user
