@@ -1,8 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel.js");
 // import generateToken from '../utils/generateToken.js'
-// import asyncHandler from "express-async-handler";
-// import User from "../models/userModel.js";
 
 const registerUser = asyncHandler(async (req, res) => {
   console.log("registerUser arrived on server");
@@ -76,5 +74,4 @@ const loginUser = asyncHandler(async (req, res) => {
 //   }
 // })
 
-// export { registerUser, loginUser, getUserProfile }
 module.exports = { registerUser, loginUser };
