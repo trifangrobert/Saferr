@@ -1,0 +1,32 @@
+├── src/
+│   ├── actions/
+│   │   ├── authActions.js
+│   │   ├── postActions.js
+│   │   └── index.js
+│   ├── components/
+│   │   ├── AuthScreen.js
+│   │   ├── PostList.js
+│   │   └── index.js
+│   ├── constants/
+│   │   ├── actionTypes.js
+│   │   └── index.js
+│   ├── reducers/
+│   │   ├── authReducer.js
+│   │   ├── postReducer.js
+│   │   └── index.js
+│   ├── store/
+│   │   ├── configureStore.js
+│   │   └── index.js
+│   ├── screens/
+│   │   ├── AuthScreen.js
+│   │   ├── PostListScreen.js
+│   │   └── index.js
+│   ├── services/
+│   │   ├── api.js
+│   │   └── index.js
+│   ├── utils/
+│   │   ├── validation.js
+│   │   └── index.js
+│   ├── App.js
+│   ├── index.js
+│   └── theme.js
