@@ -2,6 +2,8 @@ import { View, Text, Button } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { logoutUser } from "../actions/authActions";
+import { Stack, Avatar } from "@react-native-material/core";
+import { random } from "lodash";
 
 const ProfileScreen = ({navigation}) => {
   const { user } = useSelector(
@@ -31,8 +33,14 @@ const ProfileScreen = ({navigation}) => {
     });
   };
 
+  const getRandomColor = () => {
+    const randomColor = `rgb(${random(0, 255)}, ${random(0, 255)}, ${random(0, 255)})`;
+    return randomColor;
+  }
+
   return (
     <View>
+      <Avatar size={70} label={`${user.firstName} ${user.lastName}`} color={getRandomColor()} />
       <Text>Profile Screen</Text>
       <Text>{user.firstName}</Text>
       <Text>{user.lastName}</Text>
