@@ -58,20 +58,27 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 })
 
-// const getUserProfile = asyncHandler(async (req, res) => {
-//   // req.user was set in authMiddleware.js
-//   const user = await User.findById(req.user._id)
+const getUserProfile = asyncHandler(async (req, res) => {
+  const { email } = req.body;
 
-//   if (user) {
-//     res.json({
-//       id: user._id,
-//       firstName: user.firstName,
-//       email: user.email,
-//     })
-//   } else {
-//     res.status(404)
-//     throw new Error('User not found')
-//   }
-// })
+  const user = await User.findOne({ email });
 
-module.exports = { registerUser, loginUser };
+  if (user) {
+    res.json({
+      _id: user._id,
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      },
+      token: "dummy_token" // generateToken(user._id),
+    });
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+})
+
+
+module.exports = { registerUser, loginUser, getUserProfile };
