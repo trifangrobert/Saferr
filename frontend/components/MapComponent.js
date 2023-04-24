@@ -4,8 +4,8 @@ import MapView from 'react-native-maps';
 import { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MapViewDirections from "react-native-maps-directions";
-import {GOOGLE_MAPS_APIKEY} from '@env';
 
+const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_APIKEY;
 
 
 export default function MapComponent() {

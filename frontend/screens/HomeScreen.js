@@ -11,6 +11,7 @@ const HomeScreen = ({navigation}) => {
       {isAuthenticated && <Button title="Go to Profile" onPress={() => navigation.navigate("Profile")} />}
       {!isAuthenticated && <Button title="Go to Register" onPress={() => navigation.navigate("Register")} /> }
       {!isAuthenticated && <Button title="Go to Login" onPress={() => navigation.navigate("Login")} /> }      
+      <Button title="See map" onPress={() => navigation.navigate("Map")} />
     </View>
   );
 };
