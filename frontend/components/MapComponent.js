@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Button } from 'react-native';
 import MapView from 'react-native-maps';
 import { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -8,115 +8,125 @@ import MapViewDirections from "react-native-maps-directions";
 const GOOGLE_MAPS_APIKEY = "AIzaSyDO1A4NrlQITu5mUzl2Ofh-9H3ZjZQbqP4";
 
 
-export default class MapComponent extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-        position: {
-            latitude: 0,
-            longitude: 0,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-        },
-            marker: null,
-            mapView: null,
-        };
-    }
+export default function MapComponent() {
+    const [position, setPosition] = React.useState({
+        latitude: 0,
+        longitude: 0,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+    });
+    const [marker, setMarker] = React.useState(null);
+    // const [mapView, setMapView] = React.useState(null);
+    const [showRoute, setShowRoute] = React.useState(false); 
+    const mapViewRef = React.useRef(null);
 
-    componentDidMount() {
-        this.getLocation();
-    }
+    React.useEffect(() => {
+        getLocation();
+    }, []);
 
-    getLocation = async () => {
+    const getLocation = async () => {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied');
         return;
         }
         let location = await Location.getCurrentPositionAsync({});
-        this.setState({
-        position: {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-        },
+        setPosition({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
         });
     };
 
-    onRegionChange = (region) => {
-        this.setState({
-        position: {
-            latitude: region.latitude,
-            longitude: region.longitude,
-            latitudeDelta: region.latitudeDelta,
-            longitudeDelta: region.longitudeDelta,
-        },
+    const onRegionChange = (region) => {
+        setPosition({
+        latitude: region.latitude,
+        longitude: region.longitude,
+        latitudeDelta: region.latitudeDelta,
+        longitudeDelta: region.longitudeDelta,
         });
     };
 
-    render() {
-        return (
-            <View style={styles.container}>
-                <MapView
-                    style={styles.map}
-                    region={this.state.position}
-                    ref={c => this.mapView = c}
-                    // onRegionChange={this.onRegionChange}
-                    provider={PROVIDER_GOOGLE}
-                    customMapStyle={mapStyleLight}
-                    // customMapStyle={mapStyleDark}
-                    showsUserLocation={true}
-                    showsMyLocationButton={true}
-                    showsCompass={true}
-                    showsScale={true}
-                    showsTraffic={false}
-                    showsIndoors={false}
-                    showsBuildings={false}
-                    showsIndoorLevelPicker={false}
-                    showsPointsOfInterest={false}
-                    onPress={(e) => this.setState(
-                        {marker: e.nativeEvent.coordinate}
-                    )}
-                >
-                    {
-                        this.state.marker &&
-                        <Marker coordinate={this.state.marker} />
-                    }
-                    <MapViewDirections
-                        origin={this.state.position}
-                        destination={this.state.marker}
-                        apikey={GOOGLE_MAPS_APIKEY}
-                        strokeWidth={4}
-                        strokeColor="#2786ab"
-                        // optimizeWaypoints={true}
-                        lineDashPattern={[0]}
-                        drivingOptions={{
-                            departureTime: new Date(Date.now()),
-                            trafficModel: 'best_guess'
-                        }}
-                        onStart={(params) => {
-                            console.log(`Started routing between "${params.origin}" and "${params.destination}"`);
-                        }}
-                        onReady={result => {
-                            console.log(`Distance: ${result.distance} km`)
-                            console.log(`Duration: ${result.duration} min.`)
-                            // this.setState({marker: null})
-                            // this.mapView.fitToCoordinates(result.coordinates, {
-                            //     edgePadding: {
-                            //         right: (width / 20),
-                            //         bottom: (height / 20),
-                            //         left: (width / 20),
-                            //         top: (height / 20),
-                            //     }
-                            // });
-                        }}
-                    />
-                </MapView>
-            </View>
-        );
-    }
+    const onMapPress = (e) => {
+        if (marker) {
+            setMarker(null);
+        }
+        else {
+            setMarker(e.nativeEvent.coordinate);
+            setShowRoute(false);
+        }
+    };
+
+    const onShowRoutePress = () => {
+        setShowRoute(true);
+    };
+
+    return (
+        <View style={styles.container}>
+            <MapView
+                style={styles.map}
+                region={position}
+                // ref={c => setMapView(c)}
+                // onRegionChange={onRegionChange}
+                provider={PROVIDER_GOOGLE}
+                customMapStyle={mapStyleLight}
+                // customMapStyle={mapStyleDark}
+                showsUserLocation={true}
+                showsMyLocationButton={true}
+                showsCompass={true}
+                showsScale={true}
+                showsTraffic={false}
+                showsIndoors={false}
+                showsBuildings={false}
+                showsIndoorLevelPicker={false}
+                showsPointsOfInterest={false}
+                onPress={onMapPress}
+            >
+                {marker && <Marker coordinate={marker} /> }
+                {showRoute && (
+                <MapViewDirections
+                    origin={position}
+                    destination={marker}
+                    apikey={GOOGLE_MAPS_APIKEY}
+                    strokeWidth={4}
+                    strokeColor="#2786ab"
+                    // optimizeWaypoints={true}
+                    lineDashPattern={[0]}
+                    drivingOptions={{
+                        departureTime: new Date(Date.now()),
+                        trafficModel: 'best_guess'
+                    }}
+                    onStart={(params) => {
+                        console.log(`Started routing between "${params.origin}" and "${params.destination}"`);
+                    }}
+                    onReady={result => {
+                        console.log(`Distance: ${result.distance} km`)
+                        console.log(`Duration: ${result.duration} min.`)
+                        // setMarker(null)
+                        // mapView.fitToCoordinates(result.coordinates, {
+                        //     edgePadding: {
+                        //         right: (width / 20),
+                        //         bottom: (height / 20),
+                        //         left: (width / 20),
+                        //         top: (height / 20),
+                        //     }
+                        // });
+                    }}
+                />
+                    )
+                }
+            </MapView>
+            {marker && !showRoute && (
+                        <View style={styles.Button}> 
+                            <Button title={"Show route"} onPress={onShowRoutePress}/>
+                        </View>
+                    
+            )}
+        </View>
+    );
 }
+
 
 const mapStyleLight = [
     {
@@ -485,5 +495,17 @@ const styles = StyleSheet.create({
     map: {
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height,
+    },
+    Button: {
+        position: 'absolute',
+        top: 50,
+        left: 20,
+        backgroundColor: '#fff',
+        padding: 10,
+        borderRadius: 5,
+        width: 100,
+        alignItems: 'center',
+        justifyContent: 'center',
+        elevation: 2,
     },
 });
