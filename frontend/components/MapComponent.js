@@ -4,22 +4,25 @@ import MapView from "react-native-maps";
 import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
 import MapViewDirections from "react-native-maps-directions";
+import { useState, useRef, useEffect } from "react";
 
 const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_APIKEY;
 
 export default function MapComponent() {
-  const [position, setPosition] = React.useState({
+  const [position, setPosition] = useState({
     latitude: 0,
     longitude: 0,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
-  const [marker, setMarker] = React.useState(null);
+  const [selectedMarker, setSelectedMarker] = useState(null);
   // const [mapView, setMapView] = React.useState(null);
-  const [showRoute, setShowRoute] = React.useState(false);
-  const mapViewRef = React.useRef(null);
+  const [showRoute, setShowRoute] = useState(false);
+  const mapViewRef = useRef(null);
 
-  React.useEffect(() => {
+  const [markers, setMarkers] = useState([]);
+
+  useEffect(() => {
     getLocation();
   }, []);
 
@@ -48,17 +51,20 @@ export default function MapComponent() {
   };
 
   const onMapPress = (e) => {
-    if (marker) {
-      setMarker(null);
-    } else {
-      setMarker(e.nativeEvent.coordinate);
-      setShowRoute(false);
-    }
+    setMarkers([
+        ...markers,
+        {
+            coordinate: e.nativeEvent.coordinate,
+            title: "Best Place",
+            description: "This is the best place in Portland",
+        }
+    ])
   };
 
-  const onShowRoutePress = () => {
+  const handleMarkerPress = (marker) => {
+    setSelectedMarker(marker);
     setShowRoute(true);
-  };
+  }
 
   return (
     <View style={styles.container}>
@@ -80,12 +86,22 @@ export default function MapComponent() {
         showsIndoorLevelPicker={false}
         showsPointsOfInterest={false}
         onPress={onMapPress}
+        initialRegion={position}
       >
-        {marker && <Marker coordinate={marker} />}
+        {markers.map((marker, index) => (
+            <Marker
+                key={index}
+                coordinate={marker.coordinate}
+                title={marker.title}
+                description={marker.description}
+                onPress={() => {handleMarkerPress(marker)}}
+            />
+        ))}
+
         {showRoute && (
           <MapViewDirections
             origin={position}
-            destination={marker}
+            destination={selectedMarker.coordinate}
             apikey={GOOGLE_MAPS_APIKEY}
             strokeWidth={4}
             strokeColor="#2786ab"
@@ -116,11 +132,6 @@ export default function MapComponent() {
           />
         )}
       </MapView>
-      {marker && !showRoute && (
-        <View style={styles.Button}>
-          <Button title={"Show route"} onPress={onShowRoutePress} />
-        </View>
-      )}
     </View>
   );
 }
