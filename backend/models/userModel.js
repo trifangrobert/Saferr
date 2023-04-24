@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 8,
     },
+    role: {
+      type: String,
+      enum: ["citizen", "police"],
+      default: "citizen",
+    },
   },
   { timestamps: true }
 );
