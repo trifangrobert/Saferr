@@ -4,10 +4,26 @@ import HomeScreen from './screens/HomeScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import LoginScreen from './screens/LoginScreen';
+import * as SplashScreen from 'expo-splash-screen';
+import React from 'react';
 
 const Stack = createNativeStackNavigator();
 
-export default function Routes() {
+async function prepareResources() {
+  try {
+    await SplashScreen.preventAutoHideAsync();
+  } catch (e) {
+    console.warn(e);
+  }
+
+  SplashScreen.hideAsync();
+}
+
+export default function App() {
+  React.useEffect(() => {
+    prepareResources();
+  }, [])
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
