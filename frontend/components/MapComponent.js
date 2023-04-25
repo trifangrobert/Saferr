@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View, Dimensions, Button } from "react-native";
-import MapView from "react-native-maps";
+import MapView, { Callout } from "react-native-maps";
 import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
 import MapViewDirections from "react-native-maps-directions";
@@ -55,8 +55,8 @@ export default function MapComponent() {
         ...markers,
         {
             coordinate: e.nativeEvent.coordinate,
-            title: "Best Place",
-            description: "This is the best place in Portland",
+            title: "Type of crime",
+            description: "Crime description",
         }
     ])
   };
@@ -92,10 +92,17 @@ export default function MapComponent() {
             <Marker
                 key={index}
                 coordinate={marker.coordinate}
-                title={marker.title}
-                description={marker.description}
+                // title={marker.title}
+                // description={marker.description}
                 onPress={() => {handleMarkerPress(marker)}}
-            />
+                
+            >
+              <Callout>
+                <Text>{index}</Text> 
+                <Text>{marker.title}</Text>
+                <Text>{marker.description}</Text>
+              </Callout>
+            </Marker>
         ))}
 
         {showRoute && (
