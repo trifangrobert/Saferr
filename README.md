@@ -1,4 +1,4 @@
-Saffer app
+Safer app
 
 [Trello](https://trello.com/invite/b/IBUuMfFu/ATTI479c28cff7abc9bfe1845a3d07cf8e8755ED8E4E/mds-project)
 
