@@ -5,6 +5,8 @@ import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
 import MapViewDirections from "react-native-maps-directions";
 import { useState, useRef, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { createEvent } from "../actions/eventActions";
 
 const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_APIKEY;
 
@@ -21,6 +23,8 @@ export default function MapComponent() {
   const mapViewRef = useRef(null);
 
   const [markers, setMarkers] = useState([]);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     getLocation();
@@ -64,6 +68,20 @@ export default function MapComponent() {
   const handleMarkerPress = (marker) => {
     setSelectedMarker(marker);
     setShowRoute(true);
+
+    // add event to database
+    const event = {
+      typeOfCrime: "dummy type of crime",
+      crimeDescription: "dummy crime description",
+      coordinate: {
+        latitude: marker.coordinate.latitude,
+        longitude: marker.coordinate.longitude,
+
+      },
+      date: new Date(Date.now()),
+      email: "dummy email",
+    };
+    dispatch(createEvent(event));
   }
 
   return (
@@ -119,13 +137,13 @@ export default function MapComponent() {
               trafficModel: "best_guess",
             }}
             onStart={(params) => {
-              console.log(
-                `Started routing between "${params.origin}" and "${params.destination}"`
-              );
+              // console.log(
+              //   `Started routing between "${params.origin}" and "${params.destination}"`
+              // );
             }}
             onReady={(result) => {
-              console.log(`Distance: ${result.distance} km`);
-              console.log(`Duration: ${result.duration} min.`);
+              // console.log(`Distance: ${result.distance} km`);
+              // console.log(`Duration: ${result.duration} min.`);
               // setMarker(null)
               // mapView.fitToCoordinates(result.coordinates, {
               //     edgePadding: {

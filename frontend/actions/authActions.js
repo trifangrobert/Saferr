@@ -9,7 +9,8 @@ import {
   AUTH_LOADING,
 } from "./types";
 
-const SERVER_URL = "http://10.243.59.96:4000";
+const SERVER_URL = process.env.SERVER_URL;
+// console.log(process.env.SERVER_URL);
 
 // Register user
 export const registerUser =
