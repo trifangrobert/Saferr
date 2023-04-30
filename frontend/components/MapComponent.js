@@ -6,11 +6,13 @@ import * as Location from "expo-location";
 import MapViewDirections from "react-native-maps-directions";
 import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { createEvent } from "../actions/eventActions";
+import { getEvents } from "../actions/eventActions";
+import { useNavigation } from "@react-navigation/native";
 
 const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_APIKEY;
 
-export default function MapComponent() {
+const MapComponent = () => {
+  const navigation = useNavigation();
   const [position, setPosition] = useState({
     latitude: 0,
     longitude: 0,
@@ -18,32 +20,47 @@ export default function MapComponent() {
     longitudeDelta: 0.0421,
   });
   const [selectedMarker, setSelectedMarker] = useState(null);
-  // const [mapView, setMapView] = React.useState(null);
   const [showRoute, setShowRoute] = useState(false);
   const mapViewRef = useRef(null);
 
-  const [markers, setMarkers] = useState([]);
+  const [activeMarker, setActiveMarker] = useState(null);
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    getLocation();
-  }, []);
+  // dispatch get events  
+  const { events: markers } = useSelector((state) => state.eventReducer);
 
-  const getLocation = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      setErrorMsg("Permission to access location was denied");
-      return;
-    }
-    let location = await Location.getCurrentPositionAsync({});
-    setPosition({
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
-    });
-  };
+  // console.log("events: ", markers);
+  useEffect(() => {
+
+    // setTimeout(() => {
+    //   dispatch(getEvents());
+    //   setActiveMarker(null);
+    // }, 5000);
+
+    //get events every 5 seconds
+    const interval = setInterval(() => {
+      dispatch(getEvents());
+    }, 3000);
+
+    return () => clearInterval(interval);
+
+  }, [dispatch]);
+
+  // const getLocation = async () => {
+  //   let { status } = await Location.requestForegroundPermissionsAsync();
+  //   if (status !== "granted") {
+  //     setErrorMsg("Permission to access location was denied");
+  //     return;
+  //   }
+  //   let location = await Location.getCurrentPositionAsync({});
+  //   setPosition({
+  //     latitude: location.coords.latitude,
+  //     longitude: location.coords.longitude,
+  //     latitudeDelta: 0.0922,
+  //     longitudeDelta: 0.0421,
+  //   });
+  // };
 
   const onRegionChange = (region) => {
     setPosition({
@@ -55,35 +72,58 @@ export default function MapComponent() {
   };
 
   const onMapPress = (e) => {
-    setMarkers([
-        ...markers,
-        {
-            coordinate: e.nativeEvent.coordinate,
-            title: "Type of crime",
-            description: "Crime description",
-        }
-    ])
+    // setMarkers([
+    //     ...markers,
+    //     {
+    //         coordinate: e.nativeEvent.coordinate,
+    //         title: "Type of crime",
+    //         description: "Crime description",
+    //     }
+    // ])
+
+    //check if e.nativeEvent.coordinate is not in markers
+    if (markers.includes(e.nativeEvent.coordinate)) {
+      // disable marker transition animation before making it null
+      mapViewRef.current.animateToRegion({
+        ...position,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      });
+      setActiveMarker(null);
+    }
+    else {
+      setActiveMarker({
+        coordinate: e.nativeEvent.coordinate,
+      });
+    }
   };
 
   const handleMarkerPress = (marker) => {
-    setSelectedMarker(marker);
-    setShowRoute(true);
+    // setSelectedMarker(marker);
+    // setShowRoute(true);
 
     // add event to database
-    const event = {
-      typeOfCrime: "dummy type of crime",
-      crimeDescription: "dummy crime description",
-      coordinate: {
-        latitude: marker.coordinate.latitude,
-        longitude: marker.coordinate.longitude,
+    // const event = {
+    //   typeOfCrime: "dummy type of crime",
+    //   crimeDescription: "dummy crime description",
+    //   coordinate: {
+    //     latitude: marker.coordinate.latitude,
+    //     longitude: marker.coordinate.longitude,
 
-      },
-      date: new Date(Date.now()),
-      email: "dummy email",
-    };
-    dispatch(createEvent(event));
+    //   },
+    //   date: new Date(Date.now()),
+    //   email: "dummy email",
+    // };
+    // dispatch(createEvent(event));
+    setActiveMarker(null);
   }
 
+  const handleActiveMarkerPress = (marker) => {
+    //redirect to add crime page
+    console.log("redirect to add crime page");
+    navigation.navigate("AddCrime", {marker: marker});
+
+  }
   return (
     <View style={styles.container}>
       <MapView
@@ -110,18 +150,24 @@ export default function MapComponent() {
             <Marker
                 key={index}
                 coordinate={marker.coordinate}
-                // title={marker.title}
-                // description={marker.description}
                 onPress={() => {handleMarkerPress(marker)}}
                 
             >
               <Callout>
                 <Text>{index}</Text> 
-                <Text>{marker.title}</Text>
-                <Text>{marker.description}</Text>
+                <Text>{marker.typeOfCrime}</Text>
+                <Text>{marker.crimeDescription}</Text>
               </Callout>
             </Marker>
         ))}
+        {activeMarker && (
+          <Marker
+            coordinate={activeMarker.coordinate}
+            pinColor="blue"
+            onPress={() => {handleActiveMarkerPress(activeMarker)}}
+            >
+            </Marker>
+        )}
 
         {showRoute && (
           <MapViewDirections
@@ -136,12 +182,12 @@ export default function MapComponent() {
               departureTime: new Date(Date.now()),
               trafficModel: "best_guess",
             }}
-            onStart={(params) => {
+            // onStart={(params) => {
               // console.log(
               //   `Started routing between "${params.origin}" and "${params.destination}"`
               // );
-            }}
-            onReady={(result) => {
+            // }}
+            // onReady={(result) => {
               // console.log(`Distance: ${result.distance} km`);
               // console.log(`Duration: ${result.duration} min.`);
               // setMarker(null)
@@ -153,13 +199,15 @@ export default function MapComponent() {
               //         top: (height / 20),
               //     }
               // });
-            }}
+            // }}
           />
         )}
       </MapView>
     </View>
   );
 }
+
+export default MapComponent;
 
 const mapStyleLight = [
   {

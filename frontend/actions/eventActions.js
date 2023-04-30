@@ -49,7 +49,7 @@ export const getEvents = () => async (dispatch) => {
 
     fetch(`${SERVER_URL}/api/event/all`)
         .then((res) => {
-            console.log('res: ', res);
+            // console.log('res: ', res);
             if (res.ok) {
                 return res.json();
             } else {
@@ -57,7 +57,7 @@ export const getEvents = () => async (dispatch) => {
             }
         })
         .then((data) => {
-            console.log('data: ', data);
+            // console.log('data: ', data);
             dispatch({
                 type: GET_EVENTS_SUCCESS,
                 payload: data,

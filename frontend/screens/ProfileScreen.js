@@ -7,7 +7,7 @@ import { random } from "lodash";
 
 const ProfileScreen = ({navigation}) => {
   const { user } = useSelector(
-    (state) => state.auth
+    (state) => state.authReducer
   );
 
   console.log("user: ", user);
