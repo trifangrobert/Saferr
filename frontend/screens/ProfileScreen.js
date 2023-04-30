@@ -1,7 +1,7 @@
 import { View, Text, Button } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { logoutUser } from "../actions/authActions";
+import { logoutUser, getUserProfile } from "../actions/authActions";
 import { Stack, Avatar } from "@react-native-material/core";
 import { random } from "lodash";
 
@@ -13,6 +13,11 @@ const ProfileScreen = ({navigation}) => {
   console.log("user: ", user);
 
   const dispatch = useDispatch();
+
+  // useEffect(() => {
+  //   console.log("ProfileScreen useEffect");
+  //   dispatch(getUserProfile());
+  // }, []);
 
   useEffect(() => {
     if (!user) {

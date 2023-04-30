@@ -104,3 +104,33 @@ export const logoutUser = () => async (dispatch) => {
     console.error(error);
   }
 };
+
+export const getUserProfile = () => async (dispatch) => {
+  console.log("getUserProfile action frontend");
+
+  fetch(`${SERVER_URL}/api/auth/profile`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json"},
+    body: JSON.stringify({ email: email}),
+  })
+    .then((res) => {
+      if (res.ok) {
+        return res.json();
+      }
+      else {
+        throw new Error("Something went wrong");
+      }
+    }
+    )
+    .then((data) => {
+      console.log("data: ", data);
+      dispatch({
+        type: LOGIN_SUCCESS,
+        payload: { user: data.user, token: data.token },
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+    }
+    );
+};
