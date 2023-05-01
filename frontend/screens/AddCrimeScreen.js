@@ -15,6 +15,7 @@ const AddCrimeScreen = ({ route, navigation }) => {
     
     const handleReport = () => {
         console.log("Report crime");
+        console.log(marker);
         let event = {
             typeOfCrime: "dummy type",
             crimeDescription: "dummy description",

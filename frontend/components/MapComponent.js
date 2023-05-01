@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View, Dimensions, Button } from "react-native";
+import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Image } from "react-native";
 import MapView, { Callout } from "react-native-maps";
 import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
@@ -7,7 +7,7 @@ import MapViewDirections from "react-native-maps-directions";
 import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getEvents } from "../actions/eventActions";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 
 const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_APIKEY;
 
@@ -21,16 +21,41 @@ const MapComponent = () => {
   });
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [showRoute, setShowRoute] = useState(false);
-  const mapViewRef = useRef(null);
+  const [enableSetEvent, setEnableSetEvent] = useState(false);
+  // const mapViewRef = useRef(null);
 
   const [activeMarker, setActiveMarker] = useState(null);
 
   const dispatch = useDispatch();
-
   // dispatch get events  
   const { events: markers } = useSelector((state) => state.eventReducer);
 
-  // console.log("events: ", markers);
+  const isFocused = useIsFocused();
+
+  useEffect (() => {
+    // request permission to access location on android
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
+      }
+    })();
+    
+  }, []);
+
+  useEffect(() => {
+    setEnableSetEvent(false);
+    setShowRoute(false);
+    setActiveMarker(null);
+  }, [isFocused]);
+
+  useEffect(() => {
+    if (!enableSetEvent) {
+      setActiveMarker(null);
+    }
+  }, [enableSetEvent]);
+
   useEffect(() => {
 
     // setTimeout(() => {
@@ -82,13 +107,11 @@ const MapComponent = () => {
     // ])
 
     //check if e.nativeEvent.coordinate is not in markers
+    if (!enableSetEvent) {
+      return;
+    }
+
     if (markers.includes(e.nativeEvent.coordinate)) {
-      // disable marker transition animation before making it null
-      mapViewRef.current.animateToRegion({
-        ...position,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      });
       setActiveMarker(null);
     }
     else {
@@ -146,7 +169,7 @@ const MapComponent = () => {
         onPress={onMapPress}
         initialRegion={position}
       >
-        {markers.map((marker, index) => (
+        {!enableSetEvent && markers.map((marker, index) => (
             <Marker
                 key={index}
                 coordinate={marker.coordinate}
@@ -203,9 +226,64 @@ const MapComponent = () => {
           />
         )}
       </MapView>
+      <View>
+        <TouchableOpacity
+          style={
+            {
+              ...styles.menuButton,
+              backgroundColor: enableSetEvent ? "green" : "red",
+            }
+          }
+          onPress={() => setEnableSetEvent(prevState => !prevState)}
+        >
+          {/* <Image
+            source={require("../assets/menu.png")}
+            style={styles.menuIcon}
+          /> */}
+          <Text>Toggle add/remove pin</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={{...styles.menuButton, 
+          top: 100,
+        }} onPress={() => navigation.navigate("Home")}>
+          <Text>Navigate to home</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    height: Dimensions.get("window").height,
+    width: Dimensions.get("window").width,
+    position: "relative",
+  },
+  map: {
+    // width: Dimensions.get("window").width,
+    // height: Dimensions.get("window").height,
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+  },
+  menuIcon: {
+    position: "absolute",
+    top: 50,
+    left: 20
+  },
+  menuButton: {
+    position: "absolute",
+    top: 50,
+    left: 20,
+    backgroundColor: "white",
+    padding: 10,
+    borderRadius: 10,
+    elevation: 10,
+  }
+});
+
+
 
 export default MapComponent;
 
@@ -566,27 +644,3 @@ const mapStyleDark = [
   },
 ];
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  map: {
-    width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height,
-  },
-  Button: {
-    position: "absolute",
-    top: 50,
-    left: 20,
-    backgroundColor: "#fff",
-    padding: 10,
-    borderRadius: 5,
-    width: 100,
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 2,
-  },
-});

@@ -17,7 +17,8 @@ export default function Routes() {
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Map" component={MapScreen} />
+        {/* <Stack.Screen name="Map" component={MapScreen} /> */}
+        <Stack.Screen name="Map" component={MapScreen} options={{ headerShown: false }} />
         <Stack.Screen name="AddCrime" component={AddCrimeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
