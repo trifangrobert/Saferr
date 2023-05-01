@@ -1,9 +1,10 @@
-import React from 'react';
-import { StyleSheet, Text, View, Dimensions, Button } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, Dimensions } from 'react-native';
 import MapView from 'react-native-maps';
 import { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 import MapViewDirections from "react-native-maps-directions";
+import { useColorModeValue, Button } from 'native-base'; 
 
 const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_APIKEY;
 
@@ -61,6 +62,11 @@ export default function MapComponent() {
         setShowRoute(true);
     };
 
+    const buttonBackgroundColor = useColorModeValue('light.primary', 'dark.primary');
+    const buttonTextColor = useColorModeValue('light.text', 'dark.text');
+
+    const mapStyle = useColorModeValue(mapStyleLight, mapStyleDark);
+
     return (
         <View style={styles.container}>
             <MapView
@@ -69,7 +75,7 @@ export default function MapComponent() {
                 // ref={c => setMapView(c)}
                 // onRegionChange={onRegionChange}
                 provider={PROVIDER_GOOGLE}
-                customMapStyle={mapStyleLight}
+                customMapStyle={mapStyle}
                 // customMapStyle={mapStyleDark}
                 showsUserLocation={true}
                 showsMyLocationButton={true}
@@ -117,9 +123,9 @@ export default function MapComponent() {
                 }
             </MapView>
             {marker && !showRoute && (
-                        <View style={styles.Button}> 
-                            <Button title={"Show route"} onPress={onShowRoutePress}/>
-                        </View>
+                //<View style={styles.ButtonContainer}> 
+                    <Button style={styles.Button} bg={buttonBackgroundColor} _text={{color: buttonTextColor}} size="md" onPress={onShowRoutePress}>Show route</Button>
+                //</View>
                     
             )}
         </View>
@@ -497,14 +503,22 @@ const styles = StyleSheet.create({
     },
     Button: {
         position: 'absolute',
-        top: 50,
-        left: 20,
-        backgroundColor: '#fff',
-        padding: 10,
-        borderRadius: 5,
-        width: 100,
+        top: 80,
+        left: 16,
+        padding: 16,
+        borderRadius: 8,
+        //width: 100,
         alignItems: 'center',
         justifyContent: 'center',
         elevation: 2,
     },
+    // myLocationButton: {
+    //     position: 'absolute',
+    //     top: 64,
+    //     right: 32,
+    //     padding: 32,
+    //     //display: "flex",
+    //     alignItems: 'center',
+    //     justifyContent: 'center',
+    // }
 });

@@ -3,7 +3,10 @@ import { Button } from 'native-base';
 
 import { useDispatch, useSelector } from "react-redux";
 import MapComponent from "../components/MapComponent";
-import HomeButton from "../components/HomeButton";
+import HomeButton from "../components/buttons/HomeButton";
+import LoginButton from "../components/buttons/LoginButton";
+import RegisterButton from "../components/buttons/RegisterButton";
+import ProfileButton from "../components/buttons/ProfileButton";
 
 const HomeScreen = ({navigation}) => {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -11,15 +14,15 @@ const HomeScreen = ({navigation}) => {
     <View style={{flex: 1}}>
       <MapComponent style={{flex: 1}}/>
         {isAuthenticated && 
-          (<Button.Group style={{position: "absolute", bottom: 20, alignItems: "center", }} size="md">
-          <Button onPress={() => navigation.navigate("Profile")}>Go to profile</Button>
-          <HomeButton onPress={() => navigation.navigate("Home")} />
+          (<Button.Group size="md" space="8" spaceEvenly={true} style={{position: "absolute", bottom: 48, left: 0, right: 0, justifyContent: "center", alignItems: "center"}}>
+           <HomeButton onPress={() => navigation.navigate("Home")} />
+           <ProfileButton onPress={() => navigation.navigate("Profile")} />
           </Button.Group>)}
         {!isAuthenticated && 
-          (<Button.Group style={{position: "absolute", bottom: 20, alignItems: "center", }} size="md">
-            <Button onPress={() => navigation.navigate("Register")}>Go to register</Button>
+          (<Button.Group size="md" space="8" spaceEvenly={true} style={{position: "absolute", bottom: 48, left: 0, right: 0, justifyContent: "center", alignItems: "center"}}>
+            <RegisterButton onPress={() => navigation.navigate("Register")} />
             <HomeButton onPress={() => navigation.navigate("Home")} />
-            <Button onPress={() => navigation.navigate("Login")}>Go to login</Button>
+            <LoginButton onPress={() => navigation.navigate("Login")} />
           </Button.Group>)}
     </View>
   );
