@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 const HomeScreen = ({navigation}) => {
 
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated } = useSelector((state) => state.authReducer);
   return (
     <View>
       {isAuthenticated && <Button title="Go to Profile" onPress={() => navigation.navigate("Profile")} />}

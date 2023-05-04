@@ -16,7 +16,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   // create new user document in db
-  const user = await User.create({ firstName, lastName, email, password });
+  const user = await User.create({ firstName, lastName, email, password, role: "citizen" });
 
   if (user) {
     res.status(201).json({
@@ -25,6 +25,7 @@ const registerUser = asyncHandler(async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        role: user.role,
       },
       token: "dummy_token" // generateToken(user._id),
     });
@@ -49,6 +50,7 @@ const loginUser = asyncHandler(async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        role: user.role,
       },
       token: "dummy_token" // generateToken(user._id),
     })
@@ -59,6 +61,7 @@ const loginUser = asyncHandler(async (req, res) => {
 })
 
 const getUserProfile = asyncHandler(async (req, res) => {
+  console.log("getUserProfile arrived on server");
   const { email } = req.body;
 
   const user = await User.findOne({ email });
@@ -70,6 +73,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        role: user.role,
       },
       token: "dummy_token" // generateToken(user._id),
     });
@@ -77,7 +81,6 @@ const getUserProfile = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("User not found");
   }
-
 })
 
 

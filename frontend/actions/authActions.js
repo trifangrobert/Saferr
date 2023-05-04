@@ -9,7 +9,8 @@ import {
   AUTH_LOADING,
 } from "./types";
 
-const SERVER_URL = "http://10.243.59.96:4000";
+const SERVER_URL = process.env.SERVER_URL;
+// console.log(process.env.SERVER_URL);
 
 // Register user
 export const registerUser =
@@ -103,4 +104,34 @@ export const logoutUser = () => async (dispatch) => {
   } catch (error) {
     console.error(error);
   }
+};
+
+export const getUserProfile = () => async (dispatch) => {
+  console.log("getUserProfile action frontend");
+
+  fetch(`${SERVER_URL}/api/auth/profile`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json"},
+    body: JSON.stringify({ email: email}),
+  })
+    .then((res) => {
+      if (res.ok) {
+        return res.json();
+      }
+      else {
+        throw new Error("Something went wrong");
+      }
+    }
+    )
+    .then((data) => {
+      console.log("data: ", data);
+      dispatch({
+        type: LOGIN_SUCCESS,
+        payload: { user: data.user, token: data.token },
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+    }
+    );
 };
