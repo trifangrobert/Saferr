@@ -19,7 +19,7 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [customError, setCustomError] = useState(null);
 
-  const { isLoading, user, error } = useSelector((state) => state.auth);
+  const { isLoading, user, error } = useSelector((state) => state.authReducer);
 
   const dispatch = useDispatch();
 

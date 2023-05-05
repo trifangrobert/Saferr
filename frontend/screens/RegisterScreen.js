@@ -22,7 +22,7 @@ const RegisterScreen = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [customError, setCustomError] = useState(null);
 
-  const { isLoading, user, error } = useSelector((state) => state.auth);
+  const { isLoading, user, error } = useSelector((state) => state.authReducer);
 
   const dispatch = useDispatch();
 
