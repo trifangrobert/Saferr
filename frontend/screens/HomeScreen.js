@@ -9,7 +9,7 @@ import RegisterButton from "../components/buttons/RegisterButton";
 import ProfileButton from "../components/buttons/ProfileButton";
 
 const HomeScreen = ({navigation}) => {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated } = useSelector((state) => state.authReducer);
   return (
     <View style={{flex: 1}}>
       <MapComponent style={{flex: 1}}/>

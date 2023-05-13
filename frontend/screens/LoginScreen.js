@@ -6,12 +6,12 @@ import {
   ActivityIndicator,
   StyleSheet,
   StatusBar,
-  Button,
 } from "react-native";
 import React from "react";
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { loginUser } from "../actions/authActions";
+import { Button } from 'native-base';
 import Error from "../components/Error";
 
 const LoginScreen = ({ navigation }) => {
@@ -51,9 +51,9 @@ const LoginScreen = ({ navigation }) => {
     dispatch(loginUser(data));
   };
   return (
-    <ScrollView>
+    <ScrollView contentContainerStyle={{ flex: 1, justifyContent:'center' }}>
       <View style={styles.container}>
-        <StatusBar barStyle="dark-content" />
+        {/* <StatusBar barStyle="dark-content" /> */}
         {error && <Error error={error} />}
         {customError && <Error error={customError} />}
 
@@ -74,20 +74,19 @@ const LoginScreen = ({ navigation }) => {
           value={password}
           secureTextEntry={true}
         />
-      </View>
-      <View style={styles.buttonContainer}>
-        <Button
-          style={styles.button}
-          title="Login"
-          onPress={() =>
-            submitForm({
-              email,
-              password,
-            })
-          }
-        />
-      </View>
-      <ActivityIndicator size="large" color="#0000ff" animating={isLoading} />
+        <View style={styles.buttonContainer}>
+          <Button
+            style={styles.button}
+            onPress={() =>
+              submitForm({
+                email,
+                password,
+              })
+            }
+          >Login</Button>
+        </View>
+        <ActivityIndicator size="large" color="#0000ff" animating={isLoading} />
+      </View>  
     </ScrollView>
   );
 };
@@ -97,12 +96,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+    padding: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 40,
   },
   input: {
     width: "100%",
@@ -119,6 +118,10 @@ const styles = StyleSheet.create({
     width: "100%",
     marginTop: 20,
   },
+  button: {
+    width: 100,
+    height: 40,
+  }
 });
 
 export default LoginScreen;

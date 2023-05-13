@@ -8,6 +8,7 @@ import {
 } from './types';
 
 const SERVER_URL = process.env.SERVER_URL;
+console.log(SERVER_URL);
 
 export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, email }) => async (dispatch) => {
     console.log('createEvent action frontend');

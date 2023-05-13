@@ -43,7 +43,8 @@
     "react-select": "^5.7.2",
     "redux": "^4.2.1",
     "redux-devtools-extension": "^2.13.9",
-    "redux-persist": "^6.0.0"
+    "redux-persist": "^6.0.0",
+    "whatwg-fetch": "^3.6.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Error from "../components/Error";
 import { registerUser } from "../actions/authActions";
+import { useColorModeValue, Button } from 'native-base'; 
 import {
   View,
   Text,
@@ -11,7 +12,6 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Button,
 } from "react-native";
 
 const RegisterScreen = ({ navigation }) => {
@@ -71,10 +71,12 @@ const RegisterScreen = ({ navigation }) => {
     // navigation.navigate("/forgot-password");
   };
 
+  const backgroundColor = useColorModeValue('colors.light.background', 'colors.dark.background');
+
   return (
-    <ScrollView>
+    <ScrollView contentContainerStyle={{ flex: 1, justifyContent:'center' }}>
       <View style={styles.container}>
-        <StatusBar barStyle="dark-content" />
+        {/* <StatusBar barStyle="dark-content" /> */}
         {error && <Error error={error} />}
         {customError && <Error error={customError} />}
         <Text style={styles.title}>Registration Form</Text>
@@ -122,7 +124,6 @@ const RegisterScreen = ({ navigation }) => {
           /> */}
           <Button
             style={styles.button}
-            title="Register"
             onPress={() =>
               submitForm({
                 firstName,
@@ -132,7 +133,7 @@ const RegisterScreen = ({ navigation }) => {
                 confirmPassword,
               })
             }
-          />
+          >Register</Button>
         </View>
         <ActivityIndicator size="large" color="#0000ff" animating={isLoading} />
       </View>
@@ -145,12 +146,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+    padding: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 40,
   },
   input: {
     width: "100%",
@@ -160,6 +161,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 20,
     paddingHorizontal: 10,
+    borderRadius: 10,
   },
   buttonContainer: {
     flexDirection: "row",
@@ -167,6 +169,10 @@ const styles = StyleSheet.create({
     width: "100%",
     marginTop: 20,
   },
+  button: {
+    width: 100,
+    height: 40,
+  }
 });
 
 export default RegisterScreen;
