@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Image } from "react-native";
+import { StyleSheet, View, Dimensions, TouchableOpacity, Image } from "react-native";
 import MapView, { Callout } from "react-native-maps";
 import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
@@ -8,7 +8,7 @@ import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getEvents } from "../actions/eventActions";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import { Modal, useColorModeValue, ScrollView, Button, Icon } from 'native-base';
+import { Modal, useColorModeValue, ScrollView, Button, Icon, Text } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
 
 const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_APIKEY;
@@ -111,37 +111,63 @@ const MapComponent = () => {
     // ])
 
     //check if e.nativeEvent.coordinate is not in markers
-    if (!enableSetEvent) {
-      return;
-    }
+    // if (!enableSetEvent) {
+    //   return;
+    // }
 
-    if(selectedMarker) {
-      setSelectedMarker(null);
-      setShowRoute(false);
-      return;
-    }
-
+    // posibil sa nu fie necesar atatea if-uri aici
     if (markers.includes(e.nativeEvent.coordinate)) {
-      setActiveMarker(null);
-      setSelectedMarker(null);
-      setShowRoute(false);
+      if (activeMarker) {
+        setActiveMarker(null);
+        setShowModal(false);
+      }
+      else if (selectedMarker) {
+        setSelectedMarker({
+          coordinate: e.nativeEvent.coordinate,
+        });
+        setShowRoute(true);
+        setActiveMarker(null);
+        setShowModal(false);
+      }
+      else {
+        setSelectedMarker(null);
+        setShowRoute(false);
+      }
     }
     else {
-      setActiveMarker({
-        coordinate: e.nativeEvent.coordinate,
-      });
+      if (selectedMarker) {
+        setSelectedMarker(null);
+        setShowRoute(false);
+      }
+      else {
+        setSelectedMarker({
+          coordinate: e.nativeEvent.coordinate,
+        });
+        setShowRoute(true);
+      }
     }
   };
 
   const handleMarkerPress = (marker) => {
-    setSelectedMarker(marker);
-
-    if (showRoute === true) {
-      setActiveMarker(marker);
-      setShowModal(true);
+    
+    if (!selectedMarker) {
+      setSelectedMarker(marker);
+      setShowRoute(true);
     }
     else {
-      setShowRoute(true);
+      if (selectedMarker === marker) {
+        if (showRoute === true) {
+          setActiveMarker(marker);
+          setShowModal(true);
+        }
+        else {
+          setShowRoute(true);
+        }
+      }
+      else {
+        setSelectedMarker(marker);
+        setShowRoute(true);
+      }
     }
 
     // add event to database
@@ -175,8 +201,8 @@ const MapComponent = () => {
     //console.log(marker);
   }
 
-  const buttonBackgroundColor = useColorModeValue('light.primary', 'dark.primary');
-  const buttonTextColor = useColorModeValue('light.text', 'dark.text');
+  const modalBackgroundColor = useColorModeValue('light.background', 'dark.background');
+  const modalTextColor = useColorModeValue('light.text', 'dark.text');
 
   const mapStyle = useColorModeValue(mapStyleLight, mapStyleDark);
 
@@ -256,31 +282,31 @@ const MapComponent = () => {
               {showModal && (<Modal
                 isOpen={showModal}
                 onClose={() => { setActiveMarker(null); }}
-                size="md"
+                size="lg"
               >
-                <Modal.Content>
-                  <Modal.CloseButton onPress={() => {setShowModal(false)}}/>
-                  <Modal.Header>{activeMarker.typeOfCrime}</Modal.Header>
-                  <Modal.Body>
+                <Modal.Content bg={ modalBackgroundColor }>
+                  <Modal.CloseButton onPress={() => {setShowModal(false); setActiveMarker(null);}}/>
+                  <Modal.Header bg={ modalBackgroundColor }><Text color={modalTextColor} >{activeMarker.typeOfCrime}</Text></Modal.Header>
+                  <Modal.Body bg={ modalBackgroundColor }>
                     <ScrollView>
-                      <Text style={{color:"white"}}>{activeMarker.crimeDescription}</Text>
+                      <Text color={modalTextColor} >{activeMarker.crimeDescription}</Text>
                     </ScrollView>
                   </Modal.Body>
-                  <Modal.Footer>
-                    <Button.Group>
+                  <Modal.Footer bg={ modalBackgroundColor }>
+                    <Button.Group size="md" space={2} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                         <Button 
-                          style={{ marginBottom: 10, marginRight: 5, marginTop: 10, backgroundColor: "green" }}
+                          style={{ marginBottom: 10, marginTop: 10, backgroundColor: "green" }}
                           rightIcon={<Icon as={Ionicons} name="arrow-up" color="white" size="md"/>}
-                          onPress={onPressUpvote(activeMarker)}
+                          onPress={() => {onPressUpvote(activeMarker); setShowModal(false); setActiveMarker(null);}}
                           >
-                          <Text style={{color: "white"}}>Upvotes</Text>
+                          <Text style={{color: "white"}}>Upvotes 15</Text>
                       </Button>
                       <Button 
-                          style={{ marginBottom: 10, marginLeft: 5, marginTop: 10, backgroundColor: "red" }}
+                          style={{ marginBottom: 10, marginTop: 10, backgroundColor: "red" }}
                           rightIcon={<Icon as={Ionicons} name="arrow-down" color="white" size="md"/>}
-                          onPress={onPressDownvote(activeMarker)}
+                          onPress={() => {onPressDownvote(activeMarker); setShowModal(false); setActiveMarker(null);}}
                       >
-                          <Text style={{color: "white"}}>Downvotes</Text>
+                          <Text style={{color: "white"}}>Downvotes 10</Text>
                       </Button>
                     </Button.Group>
                   </Modal.Footer>
