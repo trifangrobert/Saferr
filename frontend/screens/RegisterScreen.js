@@ -2,14 +2,11 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Error from "../components/Error";
 import { registerUser } from "../actions/authActions";
-import { useColorModeValue, Button } from 'native-base'; 
+import { useColorModeValue, Button, Text, Input, ScrollView, Container, Header, Title, Form, Item, Stack} from 'native-base'; 
 import {
   View,
-  Text,
-  TextInput,
   StyleSheet,
   StatusBar,
-  ScrollView,
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
@@ -71,51 +68,65 @@ const RegisterScreen = ({ navigation }) => {
     // navigation.navigate("/forgot-password");
   };
 
-  const backgroundColor = useColorModeValue('colors.light.background', 'colors.dark.background');
+  const backgroundColor = useColorModeValue('light.background', 'dark.background');
+  const textColor = useColorModeValue('light.text', 'dark.text');
+  const submitButtonColor = useColorModeValue('light.primary', 'dark.primary');
 
   return (
-    <ScrollView contentContainerStyle={{ flex: 1, justifyContent:'center' }}>
+    <ScrollView bg={backgroundColor} contentContainerStyle={{ flex: 1, justifyContent:'center' }}>
       <View style={styles.container}>
         {/* <StatusBar barStyle="dark-content" /> */}
         {error && <Error error={error} />}
         {customError && <Error error={customError} />}
-        <Text style={styles.title}>Registration Form</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="First Name"
-          onChangeText={(text) => setFirstName(text)}
-          value={firstName}
-          autoComplete="given-name"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Last Name"
-          onChangeText={(text) => setLastName(text)}
-          value={lastName}
-          autoComplete="family-name"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          onChangeText={(text) => setEmail(text)}
-          value={email}
-          keyboardType="email-address"
-          autoComplete="email"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          onChangeText={(text) => setPassword(text)}
-          value={password}
-          secureTextEntry={true}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Confirm Password"
-          onChangeText={(text) => setConfirmPassword(text)}
-          value={confirmPassword}
-          secureTextEntry={true}
-        />
+        <Text color={textColor} style={styles.title}>Registration Form</Text>
+        <Stack space={4} w="90%" maxW="500px" mx="auto">
+          <Input
+            style={styles.input}
+            placeholder="First Name"
+            placeholderTextColor={textColor}
+            onChangeText={(text) => setFirstName(text)}
+            value={firstName}
+            autoComplete="given-name"
+            variant="outline"
+          />
+          <Input
+            style={styles.input}
+            placeholder="Last Name"
+            placeholderTextColor={textColor}
+            onChangeText={(text) => setLastName(text)}
+            value={lastName}
+            autoComplete="family-name"
+            variant="outline"
+          />
+          <Input
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor={textColor}
+            onChangeText={(text) => setEmail(text)}
+            value={email}
+            keyboardType="email-address"
+            autoComplete="email"
+            variant="outline"
+          />
+          <Input
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor={textColor}
+            onChangeText={(text) => setPassword(text)}
+            value={password}
+            secureTextEntry={true}
+            variant="outline"
+          />
+          <Input
+            style={styles.input}
+            placeholder="Confirm Password"
+            placeholderTextColor={textColor}
+            onChangeText={(text) => setConfirmPassword(text)}
+            value={confirmPassword}
+            secureTextEntry={true}
+            variant="outline"
+          />
+        </Stack>
         <View style={styles.buttonContainer}>
           {/* <Button
             style={styles.button}
@@ -124,6 +135,7 @@ const RegisterScreen = ({ navigation }) => {
           /> */}
           <Button
             style={styles.button}
+            bg={submitButtonColor}
             onPress={() =>
               submitForm({
                 firstName,
@@ -133,7 +145,7 @@ const RegisterScreen = ({ navigation }) => {
                 confirmPassword,
               })
             }
-          >Register</Button>
+          ><Text color={textColor}>Register</Text></Button>
         </View>
         <ActivityIndicator size="large" color="#0000ff" animating={isLoading} />
       </View>
@@ -152,16 +164,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 40,
+    padding: 10
   },
   input: {
     width: "100%",
     height: 40,
     borderColor: "gray",
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-    borderRadius: 10,
   },
   buttonContainer: {
     flexDirection: "row",

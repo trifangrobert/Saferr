@@ -6,7 +6,7 @@ import * as Location from "expo-location";
 import MapViewDirections from "react-native-maps-directions";
 import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { getEvents } from "../actions/eventActions";
+import { getEvents, updateEvent } from "../actions/eventActions";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { Modal, useColorModeValue, ScrollView, Button, Icon, Text } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
@@ -115,7 +115,7 @@ const MapComponent = () => {
     //   return;
     // }
 
-    // posibil sa nu fie necesar atatea if-uri aici
+    // posibil sa nu fie necesare atatea if-uri aici
     if (markers.includes(e.nativeEvent.coordinate)) {
       if (activeMarker) {
         setActiveMarker(null);
@@ -193,12 +193,16 @@ const MapComponent = () => {
 
   const onPressUpvote = (marker) => {
     console.log("Upvoted");
-    //console.log(marker);
+    // console.log(marker);
+	marker.upvotes += 1;
+	dispatch(updateEvent(marker._id, marker));
   }
 
   const onPressDownvote = (marker) => {
     console.log("Downvoted");
-    //console.log(marker);
+    // console.log(marker);
+	marker.downvotes += 1;
+	dispatch(updateEvent(marker._id, marker));
   }
 
   const modalBackgroundColor = useColorModeValue('light.background', 'dark.background');
@@ -297,16 +301,16 @@ const MapComponent = () => {
                         <Button 
                           style={{ marginBottom: 10, marginTop: 10, backgroundColor: "green" }}
                           rightIcon={<Icon as={Ionicons} name="arrow-up" color="white" size="md"/>}
-                          onPress={() => {onPressUpvote(activeMarker); setShowModal(false); setActiveMarker(null);}}
+                          onPress={() => { onPressUpvote(activeMarker); }}
                           >
-                          <Text style={{color: "white"}}>Upvotes 15</Text>
+                          <Text style={{color: "white"}}>Upvotes {activeMarker.upvotes}</Text>
                       </Button>
                       <Button 
                           style={{ marginBottom: 10, marginTop: 10, backgroundColor: "red" }}
                           rightIcon={<Icon as={Ionicons} name="arrow-down" color="white" size="md"/>}
-                          onPress={() => {onPressDownvote(activeMarker); setShowModal(false); setActiveMarker(null);}}
+                          onPress={() => { onPressDownvote(activeMarker); }}
                       >
-                          <Text style={{color: "white"}}>Downvotes 10</Text>
+                          <Text style={{color: "white"}}>Downvotes {activeMarker.downvotes}</Text>
                       </Button>
                     </Button.Group>
                   </Modal.Footer>

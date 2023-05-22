@@ -51,6 +51,23 @@ const LoginScreen = ({ navigation }) => {
     dispatch(loginUser(data));
   };
   return (
+        // <Container>
+    //   <Header bg={backgroundColor}>
+    //     <Title color={textColor}>Registration Form</Title>
+    //   </Header>
+
+    //   <Form>
+    //     <Item>
+    //       <Input 
+    //         placeholder="First Name"
+    //         placeholderTextColor={textColor}
+    //         onChangeText={(text) => setFirstName(text)}
+    //         value={firstName}
+    //         autoComplete="given-name"
+    //        />
+    //     </Item>
+    //   </Form>
+    // </Container>
     <ScrollView contentContainerStyle={{ flex: 1, justifyContent:'center' }}>
       <View style={styles.container}>
         {/* <StatusBar barStyle="dark-content" /> */}
@@ -102,6 +119,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 40,
+    padding: 10
   },
   input: {
     width: "100%",
