@@ -1,7 +1,5 @@
 import {
   View,
-  Text,
-  ScrollView,
   TextInput,
   ActivityIndicator,
   StyleSheet,
@@ -11,7 +9,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { loginUser } from "../actions/authActions";
-import { Button } from 'native-base';
+import { Button, useColorModeValue, Text, Stack, Input, ScrollView } from 'native-base';
 import Error from "../components/Error";
 
 const LoginScreen = ({ navigation }) => {
@@ -50,6 +48,11 @@ const LoginScreen = ({ navigation }) => {
 
     dispatch(loginUser(data));
   };
+
+  const backgroundColor = useColorModeValue('light.background', 'dark.background');
+  const textColor = useColorModeValue('light.text', 'dark.text');
+  const submitButtonColor = useColorModeValue('light.primary', 'dark.primary');
+
   return (
         // <Container>
     //   <Header bg={backgroundColor}>
@@ -68,39 +71,46 @@ const LoginScreen = ({ navigation }) => {
     //     </Item>
     //   </Form>
     // </Container>
-    <ScrollView contentContainerStyle={{ flex: 1, justifyContent:'center' }}>
+    <ScrollView bg={backgroundColor} contentContainerStyle={{ flex: 1, justifyContent:'center' }}>
       <View style={styles.container}>
         {/* <StatusBar barStyle="dark-content" /> */}
         {error && <Error error={error} />}
         {customError && <Error error={customError} />}
 
-        <Text style={styles.title}>Login Form</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          onChangeText={(text) => setEmail(text)}
-          value={email}
-          keyboardType="email-address"
-          autoComplete="email"
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          onChangeText={(text) => setPassword(text)}
-          value={password}
-          secureTextEntry={true}
-        />
+        <Text color={textColor} style={styles.title}>Login Form</Text>
+        <Stack space={4} w="90%" maxW="500px" mx="auto">
+          <Input
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor={textColor}
+            onChangeText={(text) => setEmail(text)}
+            value={email}
+            autoComplete="email"
+            variant="outline"
+            keyboardType="email-address"
+          />
+          <Input
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor={textColor}
+            onChangeText={(text) => setPassword(text)}
+            value={password}
+            autoComplete="password"
+            variant="outline"
+            secureTextEntry={true}
+          />
+        </Stack>
         <View style={styles.buttonContainer}>
           <Button
             style={styles.button}
+            bg={submitButtonColor}
             onPress={() =>
               submitForm({
                 email,
                 password,
               })
             }
-          >Login</Button>
+          ><Text color={textColor}>Login</Text></Button>
         </View>
         <ActivityIndicator size="large" color="#0000ff" animating={isLoading} />
       </View>  
@@ -125,10 +135,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 40,
     borderColor: "gray",
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 20,
-    paddingHorizontal: 10,
   },
   buttonContainer: {
     flexDirection: "row",

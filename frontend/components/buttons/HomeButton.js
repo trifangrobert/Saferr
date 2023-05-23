@@ -1,5 +1,4 @@
 import { Pressable, Icon, useColorModeValue, Button } from 'native-base';
-import { theme } from '../../Theme';
 import { StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 

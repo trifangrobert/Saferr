@@ -8,8 +8,9 @@ import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getEvents, updateEvent } from "../actions/eventActions";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import { Modal, useColorModeValue, ScrollView, Button, Icon, Text } from 'native-base';
+import { Modal, useColorModeValue, ScrollView, Button, Icon, Text, StatusBar } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
+import ToggleAddEventButton from "./buttons/ToggleAddEventButton";
 
 const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_APIKEY;
 
@@ -205,6 +206,11 @@ const MapComponent = () => {
 	dispatch(updateEvent(marker._id, marker));
   }
 
+  const onPressAddEvent = () => {
+	console.log("Add event");
+	//setEnableSetEvent(true);
+  }
+
   const modalBackgroundColor = useColorModeValue('light.background', 'dark.background');
   const modalTextColor = useColorModeValue('light.text', 'dark.text');
 
@@ -212,6 +218,7 @@ const MapComponent = () => {
 
   return (
     <View style={styles.container}>
+	  <StatusBar barStyle="dark-content" />
       <MapView
         style={styles.map}
         region={position}
@@ -221,7 +228,7 @@ const MapComponent = () => {
         customMapStyle={mapStyle}
         // customMapStyle={mapStyleDark}
         showsUserLocation={true}
-        showsMyLocationButton={true}
+        //showsMyLocationButton={true}
         showsCompass={true}
         showsScale={true}
         showsTraffic={false}
@@ -232,6 +239,7 @@ const MapComponent = () => {
         onPress={onMapPress}
         initialRegion={position}
       >
+
         {!enableSetEvent && markers.map((marker, index) => (
             <Marker
                 key={index}
@@ -321,6 +329,9 @@ const MapComponent = () => {
         )}
 
       </MapView>
+
+	  <ToggleAddEventButton style={styles.toggleAddEventButton} onPress={() => {onPressAddEvent();}}/>
+
       {/* {marker && !showRoute && (
                 //<View style={styles.ButtonContainer}> 
                     <Button style={styles.Button} bg={buttonBackgroundColor} _text={{color: buttonTextColor}} size="md" onPress={onShowRoutePress}>Show route</Button>
@@ -407,6 +418,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  toggleAddEventButton: {
+	position: "absolute",
+    top: 20,
+    left: 20
+  }
   // myLocationButton: {
   //     position: 'absolute',
   //     top: 64,
