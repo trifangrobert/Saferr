@@ -13,7 +13,6 @@ import { Ionicons } from '@expo/vector-icons';
 import ToggleAddEventButton from "./buttons/ToggleAddEventButton";
 
 const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_APIKEY;
-const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_APIKEY;
 
 const MapComponent = () => {
   const navigation = useNavigation();
