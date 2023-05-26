@@ -3,16 +3,12 @@ import { StyleSheet } from 'react-native';
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 
-const ToggleAddEventButton = ( { style, onPress } ) => {
-    const [selected, setSelected] = useState(false);
+const ToggleAddEventButton = ( { style, onPress, selected } ) => {
+    // const [selected, setSelected] = useState(false);
 
-    const toggleSelected = () => {
-        if(selected) {
-            onPress();
-        }
-        setSelected(!selected);
-        console.log(selected);
-    };
+    // const toggleSelected = () => {
+    //     setSelected(!selected);
+    // };
 
     const buttonBackgroundColorMode = useColorModeValue('light.primary', 'dark.primary');
     const iconColorMode = useColorModeValue('light.text', 'dark.text');
@@ -22,7 +18,7 @@ const ToggleAddEventButton = ( { style, onPress } ) => {
         <Button bg={buttonBackgroundColorMode} 
                 style={{...style, ...styles.button}} 
                 leftIcon={ <Icon as={Ionicons} name={selected ? 'aperture-outline' : 'add-circle-outline'} color={iconColorMode} size="md" />}
-                onPress={toggleSelected}
+                onPress={() => {onPress();}}
                 >
            <Text color={textColorMode}>{selected ? 'Adding new event...' : 'Add new event'}</Text>
         </Button>

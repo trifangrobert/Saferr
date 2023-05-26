@@ -22,9 +22,9 @@ const MapComponent = () => {
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
-  const [selectedMarker, setSelectedMarker] = useState(null);
+  const [reportMarker, setReportMarker] = useState(null);
   const [showRoute, setShowRoute] = useState(false);
-  const [enableSetEvent, setEnableSetEvent] = useState(false);
+  const [enableReportEvent, setEnableReportEvent] = useState(false);
   // const mapViewRef = useRef(null);
 
   const [activeMarker, setActiveMarker] = useState(null);
@@ -50,17 +50,17 @@ const MapComponent = () => {
   }, []);
 
   useEffect(() => {
-    setEnableSetEvent(false);
+    setEnableReportEvent(false);
     setShowRoute(false);
     setActiveMarker(null);
   }, [isFocused]);
 
   useEffect(() => {
-    if (!enableSetEvent) {
-      setSelectedMarker(null);
+    if (!enableReportEvent) {
+      setReportMarker(null);
       setActiveMarker(null);
     }
-  }, [enableSetEvent]);
+  }, [enableReportEvent]);
 
   useEffect(() => {
     // setTimeout(() => {
@@ -112,64 +112,35 @@ const MapComponent = () => {
     // ])
 
     //check if e.nativeEvent.coordinate is not in markers
-    // if (!enableSetEvent) {
+    // if (!enableReportEvent) {
     //   return;
     // }
-
-    // posibil sa nu fie necesare atatea if-uri aici
-    if (markers.includes(e.nativeEvent.coordinate)) {
-      if (activeMarker) {
-        setActiveMarker(null);
-        setShowModal(false);
-      }
-      else if (selectedMarker) {
-        setSelectedMarker({
-          coordinate: e.nativeEvent.coordinate,
-        });
-        setShowRoute(true);
-        setActiveMarker(null);
-        setShowModal(false);
+    if (enableReportEvent) {
+      if (markers.includes(e.nativeEvent.coordinate)) {
+        setReportMarker(null);
       }
       else {
-        setSelectedMarker(null);
-        setShowRoute(false);
-      }
-    }
-    else {
-      if (selectedMarker) {
-        setSelectedMarker(null);
-        setShowRoute(false);
-      }
-      else {
-        setSelectedMarker({
+        setReportMarker({
           coordinate: e.nativeEvent.coordinate,
         });
-        setShowRoute(true);
       }
     }
+    // else {
+      
+    //   if (!markers.includes(e.nativeEvent.coordinate)) {
+    //     console.log(markers);
+    //     console.log(e.nativeEvent.coordinate);
+    //     console.log(!markers.includes(e.nativeEvent.coordinate));
+    //     setShowModal(false);
+    //     setActiveMarker(null);
+    //   }
+    // }
   };
 
   const handleMarkerPress = (marker) => {
-    
-    if (!selectedMarker) {
-      setSelectedMarker(marker);
-      setShowRoute(true);
-    }
-    else {
-      if (selectedMarker === marker) {
-        if (showRoute === true) {
-          setActiveMarker(marker);
-          setShowModal(true);
-        }
-        else {
-          setShowRoute(true);
-        }
-      }
-      else {
-        setSelectedMarker(marker);
-        setShowRoute(true);
-      }
-    }
+   console.log("marker pressed");
+   setActiveMarker(marker);
+   setShowModal(true);
 
     // add event to database
     // const event = {
@@ -186,10 +157,11 @@ const MapComponent = () => {
     // dispatch(createEvent(event));
   }
 
-  const handleActiveMarkerPress = (marker) => {
+  const handleReportMarkerPress = (marker) => {
     //redirect to add crime page
-    //console.log("redirect to add crime page");
-    //navigation.navigate("AddCrime", {marker: marker});
+    console.log("redirect to add crime page");
+    setEnableReportEvent(false);
+    navigation.navigate("AddCrime", {marker: marker});
   }
 
   const onPressUpvote = (marker) => {
@@ -206,10 +178,6 @@ const MapComponent = () => {
 	dispatch(updateEvent(marker._id, marker));
   }
 
-  const onPressAddEvent = () => {
-	console.log("Add event");
-	//setEnableSetEvent(true);
-  }
 
   const modalBackgroundColor = useColorModeValue('light.background', 'dark.background');
   const modalTextColor = useColorModeValue('light.text', 'dark.text');
@@ -240,7 +208,7 @@ const MapComponent = () => {
         initialRegion={position}
       >
 
-        {!enableSetEvent && markers.map((marker, index) => (
+        {!enableReportEvent && markers.map((marker, index) => (
             <Marker
                 key={index}
                 coordinate={marker.coordinate}
@@ -249,11 +217,19 @@ const MapComponent = () => {
             >
             </Marker>
         ))}
+        {enableReportEvent && reportMarker && (
+          <Marker
+            coordinate={reportMarker.coordinate}
+            image={require("../assets/map-marker.png")}
+            onPress={() => {handleReportMarkerPress(reportMarker)}}
+            >
+            </Marker>
+        )}
 
-        {showRoute && (
+        {/* {showRoute && (
           <MapViewDirections
             origin={position}
-            destination={selectedMarker.coordinate}
+            destination={reportMarker.coordinate}
             apikey={GOOGLE_MAPS_APIKEY}
             strokeWidth={4}
             strokeColor="#2786ab"
@@ -282,14 +258,14 @@ const MapComponent = () => {
               // });
             // }}
           />
-        )}
+        )} */}
 
-        {activeMarker && (
+        {/* {activeMarker && (
           <Marker
             coordinate={activeMarker.coordinate}
             image={require("../assets/map-marker.png")}
-            onPress={() => {handleActiveMarkerPress(activeMarker)}}
-            >
+            onPress={() => {handleReportMarkerPress(activeMarker)}}
+            > */}
 
               {showModal && (<Modal
                 isOpen={showModal}
@@ -325,12 +301,18 @@ const MapComponent = () => {
                 </Modal.Content>
               </Modal>)}
 
-            </Marker>
-        )}
+            {/* </Marker>
+        )} */}
 
       </MapView>
 
-	  <ToggleAddEventButton style={styles.toggleAddEventButton} onPress={() => {onPressAddEvent();}}/>
+	  <ToggleAddEventButton style={styles.toggleAddEventButton} onPress={() => {
+      console.log("Toggle add event button pressed");
+      setEnableReportEvent(!enableReportEvent);
+      setReportMarker(null);
+      setActiveMarker(null);
+      setShowModal(false);
+      }} selected={enableReportEvent}/>
 
       {/* {marker && !showRoute && (
                 //<View style={styles.ButtonContainer}> 
@@ -345,10 +327,10 @@ const MapComponent = () => {
           style={
             {
               ...styles.menuButton,
-              backgroundColor: enableSetEvent ? "green" : "red",
+              backgroundColor: enableReportEvent ? "green" : "red",
             }
           }
-          onPress={() => setEnableSetEvent(prevState => !prevState)}
+          onPress={() => setEnableReportEvent(prevState => !prevState)}
         >
           <Image
             source={require("../assets/menu.png")}
@@ -371,8 +353,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    // height: Dimensions.get("window").height,
-    // width: Dimensions.get("window").width,
     // position: "relative",
     alignItems: 'center',
     justifyContent: 'center',
@@ -420,7 +400,7 @@ const styles = StyleSheet.create({
   },
   toggleAddEventButton: {
 	position: "absolute",
-    top: 20,
+    top: 60,
     left: 20
   }
   // myLocationButton: {
