@@ -39,10 +39,17 @@ const eventSchema = new mongoose.Schema(
             required: true,
             trim: true,
         },
+        upvotes: {
+            type: Number,
+            default: 0,
+        },
+        downvotes: {
+            type: Number,
+            default: 0,
+        },
     },
     { timestamps: true }
 );
-//nice to have: upvotes
 
 const Event = mongoose.model("Event", eventSchema);
 

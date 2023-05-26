@@ -22,6 +22,8 @@ export const registerUser =
     // email = "trifangrobert@gmail.com";
     // password = "qwertyui";
 
+    console.log(process.env.SERVER_URL);
+
     console.log(JSON.stringify({ firstName, lastName, email, password }));
     dispatch({ type: AUTH_LOADING });
 

@@ -5,6 +5,9 @@ import {
     GET_EVENTS_LOADING,
     GET_EVENTS_SUCCESS,
     GET_EVENTS_FAILURE,
+    UPDATE_EVENT_FAILURE,
+    UPDATE_EVENT_LOADING,
+    UPDATE_EVENT_SUCCESS,
 } from '../actions/types';
 
 const initialState = { 
@@ -44,6 +47,23 @@ const eventReducer = (state = initialState, action) => {
                 events: action.payload,
             };
         case GET_EVENTS_FAILURE:
+            return {
+                ...state,
+                isLoading: false,
+                error: action.payload,
+            };
+        case UPDATE_EVENT_LOADING:
+            return {
+                ...state,
+                isLoading: true,
+            };
+        case UPDATE_EVENT_SUCCESS:
+            return {
+                ...state,
+                isLoading: false,
+                events: [...state.events, action.payload.event],
+            };
+        case UPDATE_EVENT_FAILURE:
             return {
                 ...state,
                 isLoading: false,
