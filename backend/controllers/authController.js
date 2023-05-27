@@ -84,4 +84,12 @@ const getUserProfile = asyncHandler(async (req, res) => {
 })
 
 
-module.exports = { registerUser, loginUser, getUserProfile };
+const getAllUsers = asyncHandler(async (req, res) => {
+  console.log("getAllUsers arrived on server");
+  const users = await User.find({});
+  res.json(users);
+});
+
+
+
+module.exports = { registerUser, loginUser, getUserProfile, getAllUsers};
