@@ -159,9 +159,11 @@ const MapComponent = () => {
 
   const handleReportMarkerPress = (marker) => {
     //redirect to add crime page
-    console.log("redirect to add crime page");
-    setEnableReportEvent(false);
-    navigation.navigate("AddCrime", {marker: marker});
+    if (enableReportEvent && reportMarker) {
+      console.log("redirect to add crime page");
+      setEnableReportEvent(false);
+      navigation.navigate("AddCrime", {marker: marker});
+    }
   }
 
   const onPressUpvote = (marker) => {
