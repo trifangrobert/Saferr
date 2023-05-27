@@ -44,6 +44,11 @@ const AddCrimeScreen = ({ route, navigation }) => {
         console.log("Report crime");
         console.log(marker);
         console.log("user: ", user);
+
+        if (!user) {
+            alert("You need to be logged in to report a crime");
+            return;
+        }
         let event = {
             typeOfCrime: crimeType, // typeOfCrime: crimeType
             crimeDescription: crimeDescription,

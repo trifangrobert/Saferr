@@ -1,30 +1,34 @@
 import React from "react";
-import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Image } from "react-native";
+import { StyleSheet, View, Dimensions, TouchableOpacity, Image } from "react-native";
 import MapView, { Callout } from "react-native-maps";
 import { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
 import MapViewDirections from "react-native-maps-directions";
 import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { getEvents } from "../actions/eventActions";
+import { getEvents, updateEvent } from "../actions/eventActions";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { Modal, useColorModeValue, ScrollView, Button, Icon, Text, StatusBar } from 'native-base';
+import { Ionicons } from '@expo/vector-icons';
+import ToggleAddEventButton from "./buttons/ToggleAddEventButton";
 
 const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_APIKEY;
 
 const MapComponent = () => {
   const navigation = useNavigation();
   const [position, setPosition] = useState({
-    latitude: 0,
-    longitude: 0,
+    latitude: 44.435432,
+    longitude: 26.102641,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
-  const [selectedMarker, setSelectedMarker] = useState(null);
+  const [reportMarker, setReportMarker] = useState(null);
   const [showRoute, setShowRoute] = useState(false);
-  const [enableSetEvent, setEnableSetEvent] = useState(false);
+  const [enableReportEvent, setEnableReportEvent] = useState(false);
   // const mapViewRef = useRef(null);
 
   const [activeMarker, setActiveMarker] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const dispatch = useDispatch();
   // dispatch get events  
@@ -42,22 +46,23 @@ const MapComponent = () => {
       }
     })();
     
+    getLocation();
   }, []);
 
   useEffect(() => {
-    setEnableSetEvent(false);
+    setEnableReportEvent(false);
     setShowRoute(false);
     setActiveMarker(null);
   }, [isFocused]);
 
   useEffect(() => {
-    if (!enableSetEvent) {
+    if (!enableReportEvent) {
+      setReportMarker(null);
       setActiveMarker(null);
     }
-  }, [enableSetEvent]);
+  }, [enableReportEvent]);
 
   useEffect(() => {
-
     // setTimeout(() => {
     //   dispatch(getEvents());
     //   setActiveMarker(null);
@@ -72,20 +77,20 @@ const MapComponent = () => {
 
   }, [dispatch]);
 
-  // const getLocation = async () => {
-  //   let { status } = await Location.requestForegroundPermissionsAsync();
-  //   if (status !== "granted") {
-  //     setErrorMsg("Permission to access location was denied");
-  //     return;
-  //   }
-  //   let location = await Location.getCurrentPositionAsync({});
-  //   setPosition({
-  //     latitude: location.coords.latitude,
-  //     longitude: location.coords.longitude,
-  //     latitudeDelta: 0.0922,
-  //     longitudeDelta: 0.0421,
-  //   });
-  // };
+  const getLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      setErrorMsg("Permission to access location was denied");
+      return;
+    }
+    let location = await Location.getCurrentPositionAsync({});
+    setPosition({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    });
+  };
 
   const onRegionChange = (region) => {
     setPosition({
@@ -107,23 +112,35 @@ const MapComponent = () => {
     // ])
 
     //check if e.nativeEvent.coordinate is not in markers
-    if (!enableSetEvent) {
-      return;
+    // if (!enableReportEvent) {
+    //   return;
+    // }
+    if (enableReportEvent) {
+      if (markers.includes(e.nativeEvent.coordinate)) {
+        setReportMarker(null);
+      }
+      else {
+        setReportMarker({
+          coordinate: e.nativeEvent.coordinate,
+        });
+      }
     }
-
-    if (markers.includes(e.nativeEvent.coordinate)) {
-      setActiveMarker(null);
-    }
-    else {
-      setActiveMarker({
-        coordinate: e.nativeEvent.coordinate,
-      });
-    }
+    // else {
+      
+    //   if (!markers.includes(e.nativeEvent.coordinate)) {
+    //     console.log(markers);
+    //     console.log(e.nativeEvent.coordinate);
+    //     console.log(!markers.includes(e.nativeEvent.coordinate));
+    //     setShowModal(false);
+    //     setActiveMarker(null);
+    //   }
+    // }
   };
 
   const handleMarkerPress = (marker) => {
-    // setSelectedMarker(marker);
-    // setShowRoute(true);
+   console.log("marker pressed");
+   setActiveMarker(marker);
+   setShowModal(true);
 
     // add event to database
     // const event = {
@@ -138,27 +155,48 @@ const MapComponent = () => {
     //   email: "dummy email",
     // };
     // dispatch(createEvent(event));
-    setActiveMarker(null);
   }
 
-  const handleActiveMarkerPress = (marker) => {
+  const handleReportMarkerPress = (marker) => {
     //redirect to add crime page
     console.log("redirect to add crime page");
+    setEnableReportEvent(false);
     navigation.navigate("AddCrime", {marker: marker});
-
   }
+
+  const onPressUpvote = (marker) => {
+    console.log("Upvoted");
+    // console.log(marker);
+	marker.upvotes += 1;
+	dispatch(updateEvent(marker._id, marker));
+  }
+
+  const onPressDownvote = (marker) => {
+    console.log("Downvoted");
+    // console.log(marker);
+	marker.downvotes += 1;
+	dispatch(updateEvent(marker._id, marker));
+  }
+
+
+  const modalBackgroundColor = useColorModeValue('light.background', 'dark.background');
+  const modalTextColor = useColorModeValue('light.text', 'dark.text');
+
+  const mapStyle = useColorModeValue(mapStyleLight, mapStyleDark);
+
   return (
     <View style={styles.container}>
+	  <StatusBar barStyle="dark-content" />
       <MapView
         style={styles.map}
         region={position}
         // ref={c => setMapView(c)}
         // onRegionChange={onRegionChange}
         provider={PROVIDER_GOOGLE}
-        customMapStyle={mapStyleLight}
+        customMapStyle={mapStyle}
         // customMapStyle={mapStyleDark}
         showsUserLocation={true}
-        showsMyLocationButton={true}
+        //showsMyLocationButton={true}
         showsCompass={true}
         showsScale={true}
         showsTraffic={false}
@@ -169,33 +207,29 @@ const MapComponent = () => {
         onPress={onMapPress}
         initialRegion={position}
       >
-        {!enableSetEvent && markers.map((marker, index) => (
+
+        {!enableReportEvent && markers.map((marker, index) => (
             <Marker
                 key={index}
                 coordinate={marker.coordinate}
+                image={require("../assets/map-marker.png")}
                 onPress={() => {handleMarkerPress(marker)}}
-                
             >
-              <Callout>
-                <Text>{index}</Text> 
-                <Text>{marker.typeOfCrime}</Text>
-                <Text>{marker.crimeDescription}</Text>
-              </Callout>
             </Marker>
         ))}
-        {activeMarker && (
+        {enableReportEvent && reportMarker && (
           <Marker
-            coordinate={activeMarker.coordinate}
-            pinColor="blue"
-            onPress={() => {handleActiveMarkerPress(activeMarker)}}
+            coordinate={reportMarker.coordinate}
+            image={require("../assets/map-marker.png")}
+            onPress={() => {handleReportMarkerPress(reportMarker)}}
             >
             </Marker>
         )}
 
-        {showRoute && (
+        {/* {showRoute && (
           <MapViewDirections
             origin={position}
-            destination={selectedMarker.coordinate}
+            destination={reportMarker.coordinate}
             apikey={GOOGLE_MAPS_APIKEY}
             strokeWidth={4}
             strokeColor="#2786ab"
@@ -224,22 +258,84 @@ const MapComponent = () => {
               // });
             // }}
           />
-        )}
+        )} */}
+
+        {/* {activeMarker && (
+          <Marker
+            coordinate={activeMarker.coordinate}
+            image={require("../assets/map-marker.png")}
+            onPress={() => {handleReportMarkerPress(activeMarker)}}
+            > */}
+
+              {showModal && (<Modal
+                isOpen={showModal}
+                onClose={() => { setActiveMarker(null); }}
+                size="lg"
+              >
+                <Modal.Content bg={ modalBackgroundColor }>
+                  <Modal.CloseButton onPress={() => {setShowModal(false); setActiveMarker(null);}}/>
+                  <Modal.Header bg={ modalBackgroundColor }><Text color={modalTextColor} >{activeMarker.typeOfCrime}</Text></Modal.Header>
+                  <Modal.Body bg={ modalBackgroundColor }>
+                    <ScrollView>
+                      <Text color={modalTextColor} >{activeMarker.crimeDescription}</Text>
+                    </ScrollView>
+                  </Modal.Body>
+                  <Modal.Footer bg={ modalBackgroundColor }>
+                    <Button.Group size="md" space={2} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                        <Button 
+                          style={{ marginBottom: 10, marginTop: 10, backgroundColor: "green" }}
+                          rightIcon={<Icon as={Ionicons} name="arrow-up" color="white" size="md"/>}
+                          onPress={() => { onPressUpvote(activeMarker); }}
+                          >
+                          <Text style={{color: "white"}}>Upvotes {activeMarker.upvotes}</Text>
+                      </Button>
+                      <Button 
+                          style={{ marginBottom: 10, marginTop: 10, backgroundColor: "red" }}
+                          rightIcon={<Icon as={Ionicons} name="arrow-down" color="white" size="md"/>}
+                          onPress={() => { onPressDownvote(activeMarker); }}
+                      >
+                          <Text style={{color: "white"}}>Downvotes {activeMarker.downvotes}</Text>
+                      </Button>
+                    </Button.Group>
+                  </Modal.Footer>
+                </Modal.Content>
+              </Modal>)}
+
+            {/* </Marker>
+        )} */}
+
       </MapView>
-      <View>
+
+	  <ToggleAddEventButton style={styles.toggleAddEventButton} onPress={() => {
+      console.log("Toggle add event button pressed");
+      setEnableReportEvent(!enableReportEvent);
+      setReportMarker(null);
+      setActiveMarker(null);
+      setShowModal(false);
+      }} selected={enableReportEvent}/>
+
+      {/* {marker && !showRoute && (
+                //<View style={styles.ButtonContainer}> 
+                    <Button style={styles.Button} bg={buttonBackgroundColor} _text={{color: buttonTextColor}} size="md" onPress={onShowRoutePress}>Show route</Button>
+                //</View>
+                    
+      )} */}
+
+      
+      {/* <View>
         <TouchableOpacity
           style={
             {
               ...styles.menuButton,
-              backgroundColor: enableSetEvent ? "green" : "red",
+              backgroundColor: enableReportEvent ? "green" : "red",
             }
           }
-          onPress={() => setEnableSetEvent(prevState => !prevState)}
+          onPress={() => setEnableReportEvent(prevState => !prevState)}
         >
-          {/* <Image
+          <Image
             source={require("../assets/menu.png")}
             style={styles.menuIcon}
-          /> */}
+          />
           <Text>Toggle add/remove pin</Text>
         </TouchableOpacity>
         <TouchableOpacity style={{...styles.menuButton, 
@@ -247,25 +343,30 @@ const MapComponent = () => {
         }} onPress={() => navigation.navigate("Home")}>
           <Text>Navigate to home</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
+      
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    height: Dimensions.get("window").height,
+    // position: "relative",
+    alignItems: 'center',
+    justifyContent: 'center',
     width: Dimensions.get("window").width,
-    position: "relative",
+    height: Dimensions.get("window").height,
+    overflow: 'hidden',
   },
   map: {
-    // width: Dimensions.get("window").width,
-    // height: Dimensions.get("window").height,
-    width: "100%",
-    height: "100%",
-    position: "absolute",
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
+    overflow: 'hidden'
+    // width: "100%",
+    // height: "100%",
+    // position: "absolute",
   },
   menuIcon: {
     position: "absolute",
@@ -280,10 +381,38 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     elevation: 10,
+  },
+  Button: {
+    position: 'absolute',
+    top: 80,
+    left: 16,
+    padding: 16,
+    borderRadius: 8,
+    //width: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 2,
+  },
+  buttonGroup: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  toggleAddEventButton: {
+	position: "absolute",
+    top: 60,
+    left: 20
   }
+  // myLocationButton: {
+  //     position: 'absolute',
+  //     top: 64,
+  //     right: 32,
+  //     padding: 32,
+  //     //display: "flex",
+  //     alignItems: 'center',
+  //     justifyContent: 'center',
+  // }
 });
-
-
 
 export default MapComponent;
 
@@ -643,4 +772,3 @@ const mapStyleDark = [
     ],
   },
 ];
-
