@@ -262,12 +262,12 @@ const MapComponent = () => {
           />
         )} */}
 
-        {/* {activeMarker && (
+        {activeMarker && (
           <Marker
             coordinate={activeMarker.coordinate}
             image={require("../assets/map-marker.png")}
             onPress={() => {handleReportMarkerPress(activeMarker)}}
-            > */}
+            >
 
               {showModal && (<Modal
                 isOpen={showModal}
@@ -303,8 +303,8 @@ const MapComponent = () => {
                 </Modal.Content>
               </Modal>)}
 
-            {/* </Marker>
-        )} */}
+            </Marker>
+        )}
 
       </MapView>
 
