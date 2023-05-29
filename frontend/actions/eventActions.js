@@ -8,18 +8,19 @@ import {
     UPDATE_EVENT_FAILURE,
     UPDATE_EVENT_LOADING,
     UPDATE_EVENT_SUCCESS,
+    SET_NEWEST_EVENT,
 } from './types';
 
 import * as Location from 'expo-location';
 import { Alert } from 'react-native';
-import { setSelectedMarker, setShowRoute } from './mapActions';
-import { even } from '@react-native-material/core';
+
+// import { setSelectedMarker, setShowRoute } from './mapActions';
 
 
 const SERVER_URL = process.env.SERVER_URL;
 console.log(SERVER_URL);
 
-export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, email, upvotes, downvotes }) => async (dispatch) => {
+export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, email, upvotes, downvotes }, showRoute) => async (dispatch) => {
     console.log('createEvent action frontend');
     console.log(JSON.stringify({ typeOfCrime, crimeDescription, coordinate, date, email, upvotes, downvotes }));
     dispatch({ type: ADD_EVENT_LOADING });
@@ -40,7 +41,7 @@ export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, e
             }
         })
         .then((data) => {
-            console.log('data: ', data);
+            console.log('data: ', data, '\nshowRoute: ', showRoute);
             dispatch({
                 type: ADD_EVENT_SUCCESS,
                 payload: data,
@@ -48,7 +49,7 @@ export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, e
 
             // alert any police officers that are nearby
             console.log('coordinate: ', data.event.coordinate);
-            sendAlert(data.event, policeOfficerLocation);
+            sendAlert(data.event, policeOfficerLocation, dispatch);
         })
         .catch((error) => {
             console.error(error);
@@ -89,13 +90,14 @@ const calculateDistance = (coordinate1, coordinate2) => {
     return distance;
 };
 
-const sendAlert = (event, policeOfficerLocation) => {
+const sendAlert = (event, policeOfficerLocation, dispatch) => {
     console.log('sendAlert');
     console.log('eventCoordinate: ', event.coordinate);
     console.log('policeOfficerLocation: ', policeOfficerLocation);
 
     const distance = calculateDistance(event.coordinate, policeOfficerLocation.coords);
     console.log('distance: ', distance);
+
 
     if (distance < 1) {
         Alert.alert(
@@ -107,11 +109,14 @@ const sendAlert = (event, policeOfficerLocation) => {
                     style: 'cancel',
                 },
                 {
-                    text: 'Show route',
+                    text: 'Go to event',
                     onPress: () => {
-                        console.log('show route');
-                        setShowRoute(true);
-                        setSelectedMarker( { coordinate: event.coordinate });
+                        console.log(`show route, coordinate: ${event.coordinate}, activeMarker: ${event.activeMarker}`);
+                        dispatch({
+                            type: SET_NEWEST_EVENT,
+                            payload: event,
+                        })
+                        // setShowRoute(true);
                     },
                 },
             ],

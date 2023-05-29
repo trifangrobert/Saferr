@@ -33,6 +33,9 @@ const MapComponent = () => {
   const dispatch = useDispatch();
   // dispatch get events  
   const { events: markers } = useSelector((state) => state.eventReducer);
+  const { user } = useSelector((state) => state.authReducer);
+  const { newestEvent } = useSelector((state) => state.eventReducer);
+  const [userPosition, setUserPosition] = useState(null);
 
   const isFocused = useIsFocused();
 
@@ -51,7 +54,7 @@ const MapComponent = () => {
 
   useEffect(() => {
     setEnableReportEvent(false);
-    setShowRoute(false);
+    // setShowRoute(false);
     setActiveMarker(null);
   }, [isFocused]);
 
@@ -77,6 +80,19 @@ const MapComponent = () => {
 
   }, [dispatch]);
 
+
+  useEffect(() => {
+    console.log("newestEvent", newestEvent);
+    if (newestEvent && newestEvent.coordinate) {
+      setPosition({
+        latitude: newestEvent.coordinate.latitude,
+        longitude: newestEvent.coordinate.longitude,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      });
+    }
+  }, [newestEvent]);
+
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
@@ -85,6 +101,12 @@ const MapComponent = () => {
     }
     let location = await Location.getCurrentPositionAsync({});
     setPosition({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    });
+    setUserPosition({
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
       latitudeDelta: 0.0922,
@@ -101,7 +123,11 @@ const MapComponent = () => {
     });
   };
 
+
+
   const onMapPress = (e) => {
+
+
     // setMarkers([
     //     ...markers,
     //     {
@@ -125,16 +151,16 @@ const MapComponent = () => {
         });
       }
     }
-    // else {
-      
-    //   if (!markers.includes(e.nativeEvent.coordinate)) {
-    //     console.log(markers);
-    //     console.log(e.nativeEvent.coordinate);
-    //     console.log(!markers.includes(e.nativeEvent.coordinate));
-    //     setShowModal(false);
-    //     setActiveMarker(null);
-    //   }
-    // }
+    else {
+      // if (!markers.includes(e.nativeEvent.coordinate)) {
+      //   console.log(markers);
+      //   console.log(e.nativeEvent.coordinate);
+      //   console.log(!markers.includes(e.nativeEvent.coordinate));
+      //   setShowRoute(false);
+      //   setShowModal(false);
+      //   setActiveMarker(null);
+      // }
+    }
   };
 
   const handleMarkerPress = (marker) => {
@@ -158,10 +184,11 @@ const MapComponent = () => {
   }
 
   const handleReportMarkerPress = (marker) => {
-    //redirect to add crime page
-    console.log("redirect to add crime page");
-    setEnableReportEvent(false);
-    navigation.navigate("AddCrime", {marker: marker});
+    if (enableReportEvent && reportMarker) {
+      console.log("redirect to add crime page");
+      setEnableReportEvent(false);
+      navigation.navigate("AddCrime", {marker: marker});
+    }
   }
 
   const onPressUpvote = (marker) => {
@@ -226,10 +253,12 @@ const MapComponent = () => {
             </Marker>
         )}
 
-        {/* {showRoute && (
+
+
+        {/*user.role == 'police' &&*/ showRoute &&(
           <MapViewDirections
-            origin={position}
-            destination={reportMarker.coordinate}
+            origin={userPosition}
+            destination={activeMarker.coordinate}
             apikey={GOOGLE_MAPS_APIKEY}
             strokeWidth={4}
             strokeColor="#2786ab"
@@ -258,22 +287,22 @@ const MapComponent = () => {
               // });
             // }}
           />
-        )} */}
+        )}
 
-        {/* {activeMarker && (
+        {activeMarker && (
           <Marker
             coordinate={activeMarker.coordinate}
             image={require("../assets/map-marker.png")}
             onPress={() => {handleReportMarkerPress(activeMarker)}}
-            > */}
+            > 
 
               {showModal && (<Modal
                 isOpen={showModal}
-                onClose={() => { setActiveMarker(null); }}
+                onClose={() => { /*setActiveMarker(null);*/ }}
                 size="lg"
               >
                 <Modal.Content bg={ modalBackgroundColor }>
-                  <Modal.CloseButton onPress={() => {setShowModal(false); setActiveMarker(null);}}/>
+                  <Modal.CloseButton onPress={() => {setShowModal(false); /*setActiveMarker(null);*/}}/>
                   <Modal.Header bg={ modalBackgroundColor }><Text color={modalTextColor} >{activeMarker.typeOfCrime}</Text></Modal.Header>
                   <Modal.Body bg={ modalBackgroundColor }>
                     <ScrollView>
@@ -281,7 +310,7 @@ const MapComponent = () => {
                     </ScrollView>
                   </Modal.Body>
                   <Modal.Footer bg={ modalBackgroundColor }>
-                    <Button.Group size="md" space={2} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Button.Group size="md" space={3} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                         <Button 
                           style={{ marginBottom: 10, marginTop: 10, backgroundColor: "green" }}
                           rightIcon={<Icon as={Ionicons} name="arrow-up" color="white" size="md"/>}
@@ -296,13 +325,24 @@ const MapComponent = () => {
                       >
                           <Text style={{color: "white"}}>Downvotes {activeMarker.downvotes}</Text>
                       </Button>
+                      { !showRoute && (
+                      <Button
+                      style={{ marginBottom: 10, marginTop: 10, backgroundColor: "blue" }}
+                      onPress={() => { 
+                        setShowRoute(!showRoute);
+                        console.log(`Show route pressed: ${showRoute}. Active marker: ${activeMarker.coordinate.latitude}`);
+                        } }
+                      >
+                           <Text style={{color: "white"}}>Show route</Text>
+                      </Button> )
+                      } 
                     </Button.Group>
                   </Modal.Footer>
                 </Modal.Content>
               </Modal>)}
 
-            {/* </Marker>
-        )} */}
+            </Marker>
+        )}
 
       </MapView>
 

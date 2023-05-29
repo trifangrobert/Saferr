@@ -8,12 +8,14 @@ import {
     UPDATE_EVENT_FAILURE,
     UPDATE_EVENT_LOADING,
     UPDATE_EVENT_SUCCESS,
+    SET_NEWEST_EVENT,
 } from '../actions/types';
 
 const initialState = { 
     isLoading: false,
     error: null,
     events: [],
+    newestEvent: null,
 };
 
 const eventReducer = (state = initialState, action) => {
@@ -68,6 +70,11 @@ const eventReducer = (state = initialState, action) => {
                 ...state,
                 isLoading: false,
                 error: action.payload,
+            };
+        case SET_NEWEST_EVENT:
+            return {
+                ...state,
+                newestEvent: action.payload,
             };
         default:
             return state;
