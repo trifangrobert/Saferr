@@ -103,6 +103,7 @@ const LoginScreen = ({ navigation }) => {
         <View style={styles.buttonContainer}>
           <Button
             style={styles.button}
+            rounded="md"
             bg={submitButtonColor}
             onPress={() =>
               submitForm({
@@ -112,7 +113,7 @@ const LoginScreen = ({ navigation }) => {
             }
           ><Text color={textColor}>Login</Text></Button>
         </View>
-        <ActivityIndicator size="large" color="#0000ff" animating={isLoading} />
+        <ActivityIndicator size="large" color="#0000ff" m={10} animating={isLoading} />
       </View>  
     </ScrollView>
   );

@@ -135,6 +135,7 @@ const RegisterScreen = ({ navigation }) => {
           /> */}
           <Button
             style={styles.button}
+            rounded="md"
             bg={submitButtonColor}
             onPress={() =>
               submitForm({

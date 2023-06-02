@@ -213,6 +213,7 @@ const MapComponent = () => {
 
   const modalBackgroundColor = useColorModeValue('light.background', 'dark.background');
   const modalTextColor = useColorModeValue('light.text', 'dark.text');
+  const defaultButtonColor = useColorModeValue('light.primary', 'dark.primary');
 
   const mapStyle = useColorModeValue(mapStyleLight, mapStyleDark);
 
@@ -305,7 +306,7 @@ const MapComponent = () => {
                     </ScrollView>
                   </Modal.Body>
                   <Modal.Footer bg={ modalBackgroundColor }>
-                    <Button.Group size="md" space={2} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Button.Group size="md" space={3} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Button 
                           style={{ marginBottom: 10, marginTop: 10, backgroundColor: "green" }}
                           rightIcon={<Icon as={Ionicons} name="arrow-up" color="white" size="md"/>}
@@ -321,6 +322,20 @@ const MapComponent = () => {
                           <Text style={{color: "white"}}>Downvotes {activeMarker.downvotes}</Text>
                       </Button>
                     </Button.Group>
+                    <Button.Group size="md" style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                       { !showRoute && (
+                        <Button
+                        style={{ marginBottom: 10, marginTop: 10 }}
+                        bg={defaultButtonColor}
+                        onPress={() => { 
+                          setShowRoute(!showRoute);
+                          setShowModal(false);
+                          console.log(`Show route pressed: ${showRoute}. Active marker: ${activeMarker.coordinate.latitude}`);
+                          }}
+                        >
+                            <Text style={{color: "white"}}>Show route</Text>
+                        </Button> )} 
+                      </Button.Group>
                   </Modal.Footer>
                 </Modal.Content>
               </Modal>)}

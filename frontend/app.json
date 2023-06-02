@@ -22,7 +22,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon1.png",
         "backgroundColor": "#1e1e1e"
+      },
+      "permissions" : {
+        "ACCESS_FINE_LOCATION": "true",
+        "ACCESS_COARSE_LOCATION": "true"
       }
+
     },
     "web": {
       "favicon": "./assets/favicon1.png"
