@@ -18,6 +18,7 @@ const ToggleAddEventButton = ( { style, onPress, selected } ) => {
         <Button bg={buttonBackgroundColorMode} 
                 style={{...style, ...styles.button}} 
                 leftIcon={ <Icon as={Ionicons} name={selected ? 'aperture-outline' : 'add-circle-outline'} color={iconColorMode} size="md" />}
+                opacity={ selected ? 0.8 : 1}
                 onPress={() => {onPress();}}
                 >
            <Text color={textColorMode}>{selected ? 'Adding new event...' : 'Add new event'}</Text>
@@ -27,7 +28,7 @@ const ToggleAddEventButton = ( { style, onPress, selected } ) => {
 
 const styles = StyleSheet.create({
     button: {
-        width: 160,
+        width: 180,
         height: 40, 
         justifyContent: 'center',
         alignItems: 'center',

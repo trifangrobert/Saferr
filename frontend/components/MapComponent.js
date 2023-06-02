@@ -181,15 +181,14 @@ const MapComponent = () => {
   }
 
 
-  const modalBackgroundColor = useColorModeValue('light.background', 'dark.background');
+  const modalBackgroundColor = useColorModeValue('light.primary', 'dark.background');
   const modalTextColor = useColorModeValue('light.text', 'dark.text');
-  const defaultButtonColor = useColorModeValue('light.primary', 'dark.primary');
 
   const mapStyle = useColorModeValue(mapStyleLight, mapStyleDark);
 
   return (
     <View style={styles.container}>
-	  <StatusBar barStyle="dark-content" />
+	    <StatusBar barStyle="dark-content" />
       <MapView
         style={styles.map}
         region={position}
@@ -199,16 +198,18 @@ const MapComponent = () => {
         customMapStyle={mapStyle}
         // customMapStyle={mapStyleDark}
         showsUserLocation={true}
-        //showsMyLocationButton={true}
+        showsMyLocationButton={true}
         showsCompass={true}
         showsScale={true}
         showsTraffic={false}
         showsIndoors={false}
-        showsBuildings={false}
+        showsBuildings={true}
         showsIndoorLevelPicker={false}
         showsPointsOfInterest={false}
         onPress={onMapPress}
         initialRegion={position}
+        toolbarEnabled={false}
+        mapPadding={{top: 18}}
       >
 
         {!enableReportEvent && markers.map((marker, index) => (
@@ -277,10 +278,12 @@ const MapComponent = () => {
               >
                 <Modal.Content bg={ modalBackgroundColor }>
                   <Modal.CloseButton onPress={() => {setShowModal(false); setActiveMarker(null);}}/>
-                  <Modal.Header bg={ modalBackgroundColor }><Text color={modalTextColor} >{activeMarker.typeOfCrime}</Text></Modal.Header>
+                  <Modal.Header bg={ modalBackgroundColor }>
+                    <Text color={modalTextColor} fontWeight={800} >{activeMarker.typeOfCrime}</Text>
+                  </Modal.Header>
                   <Modal.Body bg={ modalBackgroundColor }>
                     <ScrollView>
-                      <Text color={modalTextColor} >{activeMarker.crimeDescription}</Text>
+                      <Text color={modalTextColor} fontWeight={800}>{activeMarker.crimeDescription}</Text>
                     </ScrollView>
                   </Modal.Body>
                   <Modal.Footer bg={ modalBackgroundColor }>
@@ -303,13 +306,12 @@ const MapComponent = () => {
                     <Button.Group size="md" style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                        { !showRoute && (
                         <Button
-                        style={{ marginBottom: 10, marginTop: 10 }}
-                        bg={defaultButtonColor}
-                        onPress={() => { 
-                          setShowRoute(!showRoute);
-                          setShowModal(false);
-                          console.log(`Show route pressed: ${showRoute}. Active marker: ${activeMarker.coordinate.latitude}`);
-                          }}
+                          style={{ marginBottom: 10, marginTop: 10, backgroundColor: "lightskyblue" }}
+                          onPress={() => { 
+                            setShowRoute(!showRoute);
+                            setShowModal(false);
+                            console.log(`Show route pressed: ${showRoute}. Active marker: ${activeMarker.coordinate.latitude}`);
+                            }}
                         >
                             <Text style={{color: "white"}}>Show route</Text>
                         </Button> )} 
@@ -323,13 +325,15 @@ const MapComponent = () => {
 
       </MapView>
 
-	  <ToggleAddEventButton style={styles.toggleAddEventButton} onPress={() => {
-      console.log("Toggle add event button pressed");
-      setEnableReportEvent(!enableReportEvent);
-      setReportMarker(null);
-      setActiveMarker(null);
-      setShowModal(false);
-      }} selected={enableReportEvent}/>
+      <View style={styles.toggleAddEventButtonContainer}>
+        <ToggleAddEventButton onPress={() => {
+          console.log("Toggle add event button pressed");
+          setEnableReportEvent(!enableReportEvent);
+          setReportMarker(null);
+          setActiveMarker(null);
+          setShowModal(false);
+          }} selected={enableReportEvent}/>
+      </View>
 
       {/* {marker && !showRoute && (
                 //<View style={styles.ButtonContainer}> 
@@ -369,6 +373,7 @@ const MapComponent = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: "relative",
     backgroundColor: "#fff",
     // position: "relative",
     alignItems: 'center',
@@ -378,6 +383,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   map: {
+    flex: 1,
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
     overflow: 'hidden'
@@ -415,10 +421,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  toggleAddEventButton: {
-	position: "absolute",
-    top: 60,
-    left: 15
+  toggleAddEventButtonContainer: {
+    position: 'absolute',
+    top: 30,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
   }
   // myLocationButton: {
   //     position: 'absolute',

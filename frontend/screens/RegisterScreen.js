@@ -66,9 +66,9 @@ const RegisterScreen = ({ navigation }) => {
     // navigation.navigate("/forgot-password");
   };
 
-  const backgroundColor = useColorModeValue('light.background', 'dark.background');
+  const backgroundColor = useColorModeValue('light.primary', 'dark.background');
   const textColor = useColorModeValue('light.text', 'dark.text');
-  const submitButtonColor = useColorModeValue('light.primary', 'dark.primary');
+  const buttonColor = useColorModeValue('light.background', 'dark.primary');
 
   return (
     <ScrollView bg={backgroundColor} contentContainerStyle={{ flex: 1, justifyContent:'center' }}>
@@ -80,6 +80,7 @@ const RegisterScreen = ({ navigation }) => {
         <Stack space={4} w="90%" maxW="500px" mx="auto">
           <Input
             style={styles.input}
+            borderColor={buttonColor}
             placeholder="First Name"
             placeholderTextColor={textColor}
             onChangeText={(text) => setFirstName(text)}
@@ -89,6 +90,7 @@ const RegisterScreen = ({ navigation }) => {
           />
           <Input
             style={styles.input}
+            borderColor={buttonColor}
             placeholder="Last Name"
             placeholderTextColor={textColor}
             onChangeText={(text) => setLastName(text)}
@@ -98,6 +100,7 @@ const RegisterScreen = ({ navigation }) => {
           />
           <Input
             style={styles.input}
+            borderColor={buttonColor}
             placeholder="Email"
             placeholderTextColor={textColor}
             onChangeText={(text) => setEmail(text)}
@@ -108,6 +111,7 @@ const RegisterScreen = ({ navigation }) => {
           />
           <Input
             style={styles.input}
+            borderColor={buttonColor}
             placeholder="Password"
             placeholderTextColor={textColor}
             onChangeText={(text) => setPassword(text)}
@@ -117,6 +121,7 @@ const RegisterScreen = ({ navigation }) => {
           />
           <Input
             style={styles.input}
+            borderColor={buttonColor}
             placeholder="Confirm Password"
             placeholderTextColor={textColor}
             onChangeText={(text) => setConfirmPassword(text)}
@@ -134,7 +139,7 @@ const RegisterScreen = ({ navigation }) => {
             <Button
               style={styles.button}
               rounded="md"
-              bg={submitButtonColor}
+              bg={buttonColor}
               onPress={() =>
                 submitForm({
                   firstName,
@@ -162,7 +167,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
     marginBottom: 40,
     padding: 10

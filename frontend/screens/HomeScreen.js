@@ -15,7 +15,7 @@ const HomeScreen = ({navigation}) => {
 
   return (
     <View bg={backgroundColor} style={{flex: 1, justifyContent: 'center'}}>
-        <VStack space={1} justifyContent="center" alignItems="center" safeAreaTop>
+        <VStack space={2} justifyContent="center" alignItems="center" safeAreaTop>
           <Image width={256} height={256} borderRadius={150} source={img} alt="Saferr"/>  
           <Text fontSize="sm" maxW="300" w="60%" textAlign="center" color={textColor} mx="20">Saffer is your dedicated platform for reporting and solving crime events in your area.</Text>
           {/* <Text fontSize="sm" maxW="300" w="60%" textAlign="center" color={textColor} mx="20">We believe in creating safer communities by empowering individuals to contribute to the safety and security of their neighborhoods.</Text> */}

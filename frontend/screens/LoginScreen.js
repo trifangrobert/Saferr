@@ -46,28 +46,11 @@ const LoginScreen = ({ navigation }) => {
     dispatch(loginUser(data));
   };
 
-  const backgroundColor = useColorModeValue('light.background', 'dark.background');
+  const backgroundColor = useColorModeValue('light.primary', 'dark.background');
   const textColor = useColorModeValue('light.text', 'dark.text');
-  const submitButtonColor = useColorModeValue('light.primary', 'dark.primary');
+  const buttonColor = useColorModeValue('light.background', 'dark.primary');
 
   return (
-        // <Container>
-    //   <Header bg={backgroundColor}>
-    //     <Title color={textColor}>Registration Form</Title>
-    //   </Header>
-
-    //   <Form>
-    //     <Item>
-    //       <Input 
-    //         placeholder="First Name"
-    //         placeholderTextColor={textColor}
-    //         onChangeText={(text) => setFirstName(text)}
-    //         value={firstName}
-    //         autoComplete="given-name"
-    //        />
-    //     </Item>
-    //   </Form>
-    // </Container>
     <ScrollView bg={backgroundColor} contentContainerStyle={{ flex: 1, justifyContent:'center' }}>
       <View style={styles.container}>
         {/* <StatusBar barStyle="dark-content" /> */}
@@ -78,6 +61,7 @@ const LoginScreen = ({ navigation }) => {
         <Stack space={4} w="90%" maxW="500px" mx="auto">
           <Input
             style={styles.input}
+            borderColor={buttonColor}
             placeholder="Email"
             placeholderTextColor={textColor}
             onChangeText={(text) => setEmail(text)}
@@ -88,6 +72,7 @@ const LoginScreen = ({ navigation }) => {
           />
           <Input
             style={styles.input}
+            borderColor={buttonColor}
             placeholder="Password"
             placeholderTextColor={textColor}
             onChangeText={(text) => setPassword(text)}
@@ -101,7 +86,7 @@ const LoginScreen = ({ navigation }) => {
             <Button
               style={styles.button}
               rounded="md"
-              bg={submitButtonColor}
+              bg={buttonColor}
               onPress={() =>
                 submitForm({
                   email,
@@ -126,7 +111,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
     marginBottom: 40,
     padding: 10
