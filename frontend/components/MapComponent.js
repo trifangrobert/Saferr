@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
   toggleAddEventButton: {
 	position: "absolute",
     top: 60,
-    left: 20
+    left: 15
   }
   // myLocationButton: {
   //     position: 'absolute',

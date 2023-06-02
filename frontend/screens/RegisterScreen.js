@@ -2,13 +2,11 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Error from "../components/Error";
 import { registerUser } from "../actions/authActions";
-import { useColorModeValue, Button, Text, Input, ScrollView, Container, Header, Title, Form, Item, Stack} from 'native-base'; 
+import { useColorModeValue, View, Button, Text, Input, ScrollView, Spinner, Stack} from 'native-base'; 
 import {
-  View,
   StyleSheet,
   StatusBar,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 
 const RegisterScreen = ({ navigation }) => {
@@ -126,29 +124,31 @@ const RegisterScreen = ({ navigation }) => {
             secureTextEntry={true}
             variant="outline"
           />
+
+          <View style={styles.buttonContainer}>
+            {/* <Button
+              style={styles.button}
+              title="Forgot Password"
+              onPress={handleForgotPassword}
+            /> */}
+            <Button
+              style={styles.button}
+              rounded="md"
+              bg={submitButtonColor}
+              onPress={() =>
+                submitForm({
+                  firstName,
+                  lastName,
+                  email,
+                  password,
+                  confirmPassword,
+                })
+              }
+            ><Text color={textColor}>Register</Text></Button>
+          </View>
+
+          {isLoading && <Spinner size="lg" color="warning.500" />}
         </Stack>
-        <View style={styles.buttonContainer}>
-          {/* <Button
-            style={styles.button}
-            title="Forgot Password"
-            onPress={handleForgotPassword}
-          /> */}
-          <Button
-            style={styles.button}
-            rounded="md"
-            bg={submitButtonColor}
-            onPress={() =>
-              submitForm({
-                firstName,
-                lastName,
-                email,
-                password,
-                confirmPassword,
-              })
-            }
-          ><Text color={textColor}>Register</Text></Button>
-        </View>
-        <ActivityIndicator size="large" color="#0000ff" animating={isLoading} />
       </View>
     </ScrollView>
   );

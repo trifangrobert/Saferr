@@ -1,7 +1,4 @@
 import {
-  View,
-  TextInput,
-  ActivityIndicator,
   StyleSheet,
   StatusBar,
 } from "react-native";
@@ -9,7 +6,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { loginUser } from "../actions/authActions";
-import { Button, useColorModeValue, Text, Stack, Input, ScrollView } from 'native-base';
+import { View, Button, useColorModeValue, Text, Stack, Input, ScrollView, Spinner } from 'native-base';
 import Error from "../components/Error";
 
 const LoginScreen = ({ navigation }) => {
@@ -99,21 +96,23 @@ const LoginScreen = ({ navigation }) => {
             variant="outline"
             secureTextEntry={true}
           />
+
+          <View style={styles.buttonContainer}>
+            <Button
+              style={styles.button}
+              rounded="md"
+              bg={submitButtonColor}
+              onPress={() =>
+                submitForm({
+                  email,
+                  password,
+                })
+              }
+            ><Text color={textColor}>Login</Text></Button>
+          </View>
+
+          {isLoading && <Spinner size="lg" color="warning.500" />}
         </Stack>
-        <View style={styles.buttonContainer}>
-          <Button
-            style={styles.button}
-            rounded="md"
-            bg={submitButtonColor}
-            onPress={() =>
-              submitForm({
-                email,
-                password,
-              })
-            }
-          ><Text color={textColor}>Login</Text></Button>
-        </View>
-        <ActivityIndicator size="large" color="#0000ff" m={10} animating={isLoading} />
       </View>  
     </ScrollView>
   );
