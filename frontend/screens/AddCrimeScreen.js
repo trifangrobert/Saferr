@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, TextInput } from "react-native";  
+import { StyleSheet } from "react-native";  
 import { useDispatch, useSelector } from "react-redux";
 import { createEvent } from "../actions/eventActions";
 import { useColorModeValue, VStack, View, Text, Button, ScrollView, Select, Input } from "native-base";
@@ -46,7 +46,7 @@ const AddCrimeScreen = ({ route, navigation }) => {
         console.log("user: ", user);
 
         if (!user) {
-            alert("You need to be logged in to report a crime");
+            alert("You need to be logged in to report a crime!");
             return;
         }
         let event = {
@@ -74,7 +74,7 @@ const AddCrimeScreen = ({ route, navigation }) => {
                 <VStack space={4} w="90%" maxW="500px" mx="auto" justifyContent="center" alignItems="center" safeAreaTop>
 
                     <Text color={textColor} style={styles.title}>Report new crime</Text>
-                    <Select selectedValue={crimeType} borderColor={buttonColor} placeholder="Choose crime type" width="100%" onValueChange={(itemValue, itemIndex) => setCrimeType(itemValue)}>
+                    <Select selectedValue={crimeType} borderColor={buttonColor} color={textColor} placeholder="Choose crime type" width="100%" onValueChange={(itemValue, itemIndex) => setCrimeType(itemValue)}>
                         {options.map((option) => (
                             <Select.Item
                                 key={option.value}
@@ -93,6 +93,7 @@ const AddCrimeScreen = ({ route, navigation }) => {
                         value={crimeDescription}
                         variant="outline"
                         borderColor={buttonColor}
+                        color={textColor}
                     />
 
                     <Button

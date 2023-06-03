@@ -10,11 +10,9 @@ const createEvent = asyncHandler(async (req, res) => {
   const eventExists = await Event.findOne({ coordinate });
 
   if (eventExists) {
-    res.status(409);
-    res.json({ message: "Event already exists" });
+    res.status(409).json({ message: "Event already exists" });
     throw new Error("Event already exists");
   }
-
 
   // create new event document in db
   const event = await Event.create({
@@ -26,6 +24,8 @@ const createEvent = asyncHandler(async (req, res) => {
     upvotes,
     downvotes,
   });
+
+  // console.log(event);
 
   if (event) {
     res.status(201).json({
@@ -46,19 +46,6 @@ const createEvent = asyncHandler(async (req, res) => {
   }
 });
 
-
-const deleteEvent = asyncHandler(async (req, res) => {
-    const event = await Event.findById(req.params.id);
-    
-    if (event) {
-        await event.remove();
-        res.json({ message: "Event removed" });
-    } else {
-        res.status(404);
-        throw new Error("Event not found");
-    }
-});
-
 const getAllEvents = asyncHandler(async (req, res) => {
   console.log("getAllEvents arrived on server");
   const events = await Event.find({});
@@ -72,34 +59,94 @@ const updateEvent = asyncHandler(async (req, res) => {
   const event = await Event.findById(req.params.id);
 
   if (event) {
-	event.typeOfCrime = typeOfCrime;
-	event.crimeDescription = crimeDescription;
-	event.coordinate = coordinate;
-	event.date = date;
-	event.email = email;
-	event.upvotes = upvotes;
-	event.downvotes = downvotes;
-	await event.save();
+    event.typeOfCrime = typeOfCrime;
+    event.crimeDescription = crimeDescription;
+    event.coordinate = coordinate;
+    event.date = date;
+    event.email = email;
 
-	// console.log(event);
+    console.log(upvotes, downvotes);
+    console.log(event.upvotes, event.downvotes);
 
-	res.status(200).json({
-			  _id: event._id,
-			  event: {
-				typeOfCrime: event.typeOfCrime,
-				crimeDescription: event.crimeDescription,
-				coordinate: event.coordinate,
-				date: event.date,
-				email: event.email,
-				upvotes: event.upvotes,
-				downvotes: event.downvotes,
-				},
-	});
+    if(event.downvotes != downvotes || event.upvotes != upvotes) {
+      const upVoted = event.usersThatUpvoted.includes(email);
+      const downVoted = event.usersThatDownvoted.includes(email)
+
+      console.log(upVoted, downVoted);
+
+      if(!upVoted && !downVoted) {
+        if(event.downvotes != downvotes) {
+          event.usersThatDownvoted.push(email);
+        }
+        else {
+          event.usersThatUpvoted.push(email);
+        }
+
+        event.upvotes = upvotes;
+        event.downvotes = downvotes;
+
+        // console.log("0");
+        // console.log(event);
+      }
+      else if(upVoted && !downVoted && event.downvotes != downvotes) {
+        event.upvotes -= 1;
+        event.usersThatUpvoted.splice(event.usersThatUpvoted.indexOf(email), 1);
+
+        event.downvotes = downvotes;
+        event.usersThatDownvoted.push(email);
+
+        // console.log("DOWN");
+        // console.log(event);
+      }
+      else if(!upVoted && downVoted && event.upvotes != upvotes) {
+        event.downvotes -= 1;
+        event.usersThatDownvoted.splice(event.usersThatDownvoted.indexOf(email), 1);
+
+        event.upvotes = upvotes;
+        event.usersThatUpvoted.push(email);
+
+        // console.log("UP");
+        // console.log(event);
+      }
+    }
+
+    await event.save();
+
+    console.log(event);
+
+    res.status(200).json({
+          _id: event._id,
+          event: {
+          typeOfCrime: event.typeOfCrime,
+          crimeDescription: event.crimeDescription,
+          coordinate: event.coordinate,
+          date: event.date,
+          email: event.email,
+          upvotes: event.upvotes,
+          downvotes: event.downvotes,
+          },
+    });
   } else {
-	res.status(404);
-	throw new Error("Event not found");
+    res.status(404);
+    throw new Error("Event not found");
   }
 });
 
+const deleteEvent = asyncHandler(async (req, res) => {
+  console.log("deleteEvent arrived on server");
+  const event = await Event.findById(req.params.id);
+  
+  if (event) {
+      await event.deleteOne();
+      // send succes message with the deleted event id
+      res.status(200).json({
+        _id: req.params.id,
+        message: "Event removed succesfully"
+      });
+  } else {
+      res.status(404);
+      throw new Error("Event not found");
+  }
+});
 
 module.exports = { createEvent, deleteEvent, getAllEvents, updateEvent };

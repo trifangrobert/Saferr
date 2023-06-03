@@ -65,7 +65,7 @@ const ProfileScreen = ({navigation}) => {
           <Avatar alignSelf="center" size="lg" color={getRandomColor()}>
             <Text color={textColor} fontSize={20} fontWeight="bold">{user.firstName[0]}{user.lastName[0]}</Text>
           </Avatar>
-          {/* // TODO culoarea bulinei si a textului de facut match */}
+          {/* // TODO culoarea bulinei si a textului de facut match, imagine user */}
           <Text color={textColor} fontWeight={400} fontSize={24}>{user.firstName} {user.lastName}</Text>
         </VStack>
         
@@ -90,7 +90,7 @@ const ProfileScreen = ({navigation}) => {
         </Button>
       </VStack>
 
-      <Button.Group size="md" space="8" spaceEvenly={true} style={{position: "absolute", bottom: 48, left: 0, right: 0, justifyContent: "center", alignItems: "center"}}>
+      <Button.Group size="md" space="8" spaceEvenly={true} style={{position: "absolute", bottom: 36, left: 0, right: 0, justifyContent: "center", alignItems: "center"}}>
         <HomeButton onPress={() => navigation.navigate("Home")} />
         <MapButton onPress={() => navigation.navigate("Map")} />
         <Button bg={buttonBackgroundColorMode} 

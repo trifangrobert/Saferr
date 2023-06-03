@@ -6,7 +6,7 @@ import * as Location from "expo-location";
 import MapViewDirections from "react-native-maps-directions";
 import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { getEvents, updateEvent } from "../actions/eventActions";
+import { getEvents, updateEvent, deleteEvent } from "../actions/eventActions";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { Modal, useColorModeValue, ScrollView, Button, Icon, Text, StatusBar } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
@@ -33,6 +33,9 @@ const MapComponent = () => {
   const dispatch = useDispatch();
   // dispatch get events  
   const { events: markers } = useSelector((state) => state.eventReducer);
+  const { user } = useSelector((state) => state.authReducer);
+  const { newestEvent } = useSelector((state) => state.eventReducer);
+  const [userPosition, setUserPosition] = useState(null);
 
   const isFocused = useIsFocused();
 
@@ -77,6 +80,22 @@ const MapComponent = () => {
 
   }, [dispatch]);
 
+  useEffect(() => {		
+    console.log("newestEvent", newestEvent);
+
+    if (newestEvent && newestEvent.coordinate) {		
+      setPosition({		
+      latitude: newestEvent.coordinate.latitude,		
+      longitude: newestEvent.coordinate.longitude,		
+      latitudeDelta: 0.005, //0.0922,		
+      longitudeDelta: 0.005, // 0.0421,		
+      });
+
+      // setActiveMarker(newestEvent);
+      // setShowRoute(true);
+    }		
+  }, [newestEvent]);
+
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
@@ -89,6 +108,13 @@ const MapComponent = () => {
       longitude: location.coords.longitude,
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0421,
+    });
+
+    setUserPosition({		
+      latitude: location.coords.latitude,		
+      longitude: location.coords.longitude,		
+      latitudeDelta: 0.0922,		
+      longitudeDelta: 0.0421,		
     });
   };
 
@@ -125,16 +151,20 @@ const MapComponent = () => {
         });
       }
     }
-    // else {
-      
-    //   if (!markers.includes(e.nativeEvent.coordinate)) {
+    else {
+      if (!markers.includes(e.nativeEvent.coordinate)) {
+        if (showRoute) {
+          setShowRoute(false);
+        }
+      }
     //     console.log(markers);
     //     console.log(e.nativeEvent.coordinate);
     //     console.log(!markers.includes(e.nativeEvent.coordinate));
+    //     setShowRoute(false);
     //     setShowModal(false);
     //     setActiveMarker(null);
     //   }
-    // }
+    }
   };
 
   const handleMarkerPress = (marker) => {
@@ -169,17 +199,23 @@ const MapComponent = () => {
   const onPressUpvote = (marker) => {
     console.log("Upvoted");
     // console.log(marker);
-	marker.upvotes += 1;
-	dispatch(updateEvent(marker._id, marker));
+    marker.upvotes += 1;
+    marker = dispatch(updateEvent(marker._id, marker));
   }
 
   const onPressDownvote = (marker) => {
     console.log("Downvoted");
     // console.log(marker);
-	marker.downvotes += 1;
-	dispatch(updateEvent(marker._id, marker));
+    marker.downvotes += 1;
+    marker = dispatch(updateEvent(marker._id, marker));
   }
 
+  const onPressRemoveEvent = (marker) => {
+    console.log("Remove event");
+    // console.log(marker);
+    setActiveMarker(null);
+    dispatch(deleteEvent(marker._id));
+  }
 
   const modalBackgroundColor = useColorModeValue('light.primary', 'dark.background');
   const modalTextColor = useColorModeValue('light.text', 'dark.text');
@@ -203,7 +239,7 @@ const MapComponent = () => {
         showsScale={true}
         showsTraffic={false}
         showsIndoors={false}
-        showsBuildings={true}
+        showsBuildings={false}
         showsIndoorLevelPicker={false}
         showsPointsOfInterest={false}
         onPress={onMapPress}
@@ -230,13 +266,13 @@ const MapComponent = () => {
             </Marker>
         )}
 
-        {/* {showRoute && (
+        {showRoute && (
           <MapViewDirections
-            origin={position}
-            destination={reportMarker.coordinate}
+            origin={userPosition}
+            destination={activeMarker.coordinate}
             apikey={GOOGLE_MAPS_APIKEY}
             strokeWidth={4}
-            strokeColor="#2786ab"
+            strokeColor="#3c9bd3"
             // optimizeWaypoints={true}
             lineDashPattern={[0]}
             drivingOptions={{
@@ -262,7 +298,7 @@ const MapComponent = () => {
               // });
             // }}
           />
-        )} */}
+        )}
 
         {activeMarker && (
           <Marker
@@ -277,7 +313,7 @@ const MapComponent = () => {
                 size="lg"
               >
                 <Modal.Content bg={ modalBackgroundColor }>
-                  <Modal.CloseButton onPress={() => {setShowModal(false); setActiveMarker(null);}}/>
+                  <Modal.CloseButton onPress={() => {setShowModal(false); /*setActiveMarker(null);*/}}/>
                   <Modal.Header bg={ modalBackgroundColor }>
                     <Text color={modalTextColor} fontWeight={800} >{activeMarker.typeOfCrime}</Text>
                   </Modal.Header>
@@ -287,25 +323,45 @@ const MapComponent = () => {
                     </ScrollView>
                   </Modal.Body>
                   <Modal.Footer bg={ modalBackgroundColor }>
-                    <Button.Group size="md" space={3} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    { (user && user.role != "police" || !user) && 
+                    ( <Button.Group size="md" space={3} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Button 
                           style={{ marginBottom: 10, marginTop: 10, backgroundColor: "green" }}
                           rightIcon={<Icon as={Ionicons} name="arrow-up" color="white" size="md"/>}
-                          onPress={() => { onPressUpvote(activeMarker); }}
+                          onPress={() => { onPressUpvote(activeMarker); setShowModal(false); }}
                           >
-                          <Text style={{color: "white"}}>Upvotes {activeMarker.upvotes}</Text>
-                      </Button>
-                      <Button 
-                          style={{ marginBottom: 10, marginTop: 10, backgroundColor: "red" }}
-                          rightIcon={<Icon as={Ionicons} name="arrow-down" color="white" size="md"/>}
-                          onPress={() => { onPressDownvote(activeMarker); }}
-                      >
-                          <Text style={{color: "white"}}>Downvotes {activeMarker.downvotes}</Text>
-                      </Button>
-                    </Button.Group>
+                            <Text style={{color: "white"}}>Upvotes {activeMarker.upvotes}</Text>
+                        </Button>
+                        <Button 
+                            style={{ marginBottom: 10, marginTop: 10, backgroundColor: "red" }}
+                            rightIcon={<Icon as={Ionicons} name="arrow-down" color="white" size="md"/>}
+                            onPress={() => { onPressDownvote(activeMarker); setShowModal(false); }}
+                        >
+                            <Text style={{color: "white"}}>Downvotes {activeMarker.downvotes}</Text>
+                        </Button>
+                    </Button.Group> )}
+
+                    { user && user.role == "police" && 
+                    ( <Button.Group size="md" space={3} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Button 
+                            style={{ marginBottom: 10, marginTop: 10, backgroundColor: "green" }}
+                            rightIcon={<Icon as={Ionicons} name="person-add-outline" color="white" size="md"/>}
+                            onPress={() => { /*TODO join event*/ setShowModal(false); }}
+                        >
+                            <Text style={{color: "white"}}>Join event</Text>
+                        </Button>
+                        <Button 
+                            style={{ marginBottom: 10, marginTop: 10, backgroundColor: "red" }}
+                            rightIcon={<Icon as={Ionicons} name="close-circle-outline" color="white" size="md"/>}
+                            onPress={() => { onPressRemoveEvent(activeMarker); setShowModal(false); }}
+                        >
+                            <Text style={{color: "white"}}>Remove event</Text>
+                        </Button>
+                    </Button.Group> )}
+                    
                     <Button.Group size="md" style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                       { !showRoute && (
-                        <Button
+                        { !showRoute &&
+                        ( <Button
                           style={{ marginBottom: 10, marginTop: 10, backgroundColor: "lightskyblue" }}
                           onPress={() => { 
                             setShowRoute(!showRoute);
@@ -315,7 +371,7 @@ const MapComponent = () => {
                         >
                             <Text style={{color: "white"}}>Show route</Text>
                         </Button> )} 
-                      </Button.Group>
+                    </Button.Group>
                   </Modal.Footer>
                 </Modal.Content>
               </Modal>)}

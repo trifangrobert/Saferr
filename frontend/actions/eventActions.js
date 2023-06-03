@@ -8,18 +8,19 @@ import {
     UPDATE_EVENT_FAILURE,
     UPDATE_EVENT_LOADING,
     UPDATE_EVENT_SUCCESS,
+    DELETE_EVENT_FAILURE,
+    DELETE_EVENT_LOADING,
+    DELETE_EVENT_SUCCESS,
+    SET_NEWEST_EVENT,
 } from './types';
 
 import * as Location from 'expo-location';
 import { Alert } from 'react-native';
-import { setSelectedMarker, setShowRoute } from './mapActions';
-import { even } from '@react-native-material/core';
-
 
 const SERVER_URL = process.env.SERVER_URL;
 console.log(SERVER_URL);
 
-export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, email, upvotes, downvotes }) => async (dispatch) => {
+export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, email, upvotes, downvotes }, showRoute) => async (dispatch) => {
     console.log('createEvent action frontend');
     console.log(JSON.stringify({ typeOfCrime, crimeDescription, coordinate, date, email, upvotes, downvotes }));
     dispatch({ type: ADD_EVENT_LOADING });
@@ -40,7 +41,7 @@ export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, e
             }
         })
         .then((data) => {
-            console.log('data: ', data);
+            console.log('data: ', data, '\nshowRoute: ', showRoute);
             dispatch({
                 type: ADD_EVENT_SUCCESS,
                 payload: data,
@@ -48,7 +49,7 @@ export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, e
 
             // alert any police officers that are nearby
             console.log('coordinate: ', data.event.coordinate);
-            sendAlert(data.event, policeOfficerLocation);
+            sendAlert(data.event, policeOfficerLocation, dispatch);
         })
         .catch((error) => {
             console.error(error);
@@ -89,7 +90,7 @@ const calculateDistance = (coordinate1, coordinate2) => {
     return distance;
 };
 
-const sendAlert = (event, policeOfficerLocation) => {
+const sendAlert = (event, policeOfficerLocation, dispatch) => {
     console.log('sendAlert');
     console.log('eventCoordinate: ', event.coordinate);
     console.log('policeOfficerLocation: ', policeOfficerLocation);
@@ -100,18 +101,21 @@ const sendAlert = (event, policeOfficerLocation) => {
     if (distance < 1) {
         Alert.alert(
             'New Crime Reported',
-            `There has been a crime reported near you. Time to be a hero! Title: ${event.typeOfCrime}\n Description: ${event.crimeDescription}`,
+            `There has been a crime reported near you.\nTime to be a hero!\nTitle: ${event.typeOfCrime}\nDescription: ${event.crimeDescription}`,
             [
                 {
                     text: 'Dismiss',
                     style: 'cancel',
                 },
                 {
-                    text: 'Show route',
+                    text: 'Go to event',
                     onPress: () => {
-                        console.log('show route');
-                        setShowRoute(true);
-                        setSelectedMarker( { coordinate: event.coordinate });
+                        console.log(`show route, coordinate: ${event.coordinate}, activeMarker: ${event.activeMarker}`);
+                        dispatch({
+                            type: SET_NEWEST_EVENT,
+                            payload: event,
+                        })
+                        // setShowRoute(true);
                     },
                 },
             ],
@@ -183,6 +187,37 @@ export const updateEvent = (eventId, { typeOfCrime, crimeDescription, coordinate
             console.error(error);
             dispatch({
                 type: UPDATE_EVENT_FAILURE,
+                payload: 'Server error. Please try again.',
+            });
+        });
+}
+
+export const deleteEvent = (EventId) => async (dispatch) => {
+    console.log('deleteEvent action frontend');
+    dispatch({ type: DELETE_EVENT_LOADING });
+
+    fetch(`${SERVER_URL}/api/event/delete/${EventId}`, {
+        method: 'DELETE',
+    })
+        .then((res) => {
+            // console.log('res: ', res);
+            if (res.ok) {
+                return res.json();
+            } else {
+                throw new Error('Something went wrong');
+            }
+        })
+        .then((data) => {
+            console.log('data: ', data);
+            dispatch({
+                type: DELETE_EVENT_SUCCESS,
+                payload: data,
+            });
+        })
+        .catch((error) => {
+            console.error(error);
+            dispatch({
+                type: DELETE_EVENT_FAILURE,
                 payload: 'Server error. Please try again.',
             });
         });
