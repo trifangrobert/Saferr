@@ -12,12 +12,16 @@ import {
     DELETE_EVENT_LOADING,
     DELETE_EVENT_SUCCESS,
     SET_NEWEST_EVENT,
+    GET_POLICE_OFFICERS_FAILURE,
+    GET_POLICE_OFFICERS_LOADING,
+    GET_POLICE_OFFICERS_SUCCESS
 } from '../actions/types';
 
 const initialState = { 
     isLoading: false,
     error: null,
     events: [],
+    policeOfficers: [],
     newestEvent: null,
 };
 
@@ -52,6 +56,23 @@ const eventReducer = (state = initialState, action) => {
                 events: action.payload,
             };
         case GET_EVENTS_FAILURE:
+            return {
+                ...state,
+                isLoading: false,
+                error: action.payload,
+            };
+        case GET_POLICE_OFFICERS_LOADING:
+            return {
+                ...state,
+                isLoading: true,
+            };
+        case GET_POLICE_OFFICERS_SUCCESS:
+            return {
+                ...state,
+                isLoading: false,
+                policeOfficers: action.payload,
+            };
+        case GET_POLICE_OFFICERS_FAILURE:
             return {
                 ...state,
                 isLoading: false,

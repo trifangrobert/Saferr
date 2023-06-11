@@ -12,6 +12,9 @@ import {
     DELETE_EVENT_LOADING,
     DELETE_EVENT_SUCCESS,
     SET_NEWEST_EVENT,
+    GET_POLICE_OFFICERS_FAILURE,
+    GET_POLICE_OFFICERS_LOADING,
+    GET_POLICE_OFFICERS_SUCCESS
 } from './types';
 
 import * as Location from 'expo-location';
@@ -25,7 +28,18 @@ export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, e
     console.log(JSON.stringify({ typeOfCrime, crimeDescription, coordinate, date, email, upvotes, downvotes }));
     dispatch({ type: ADD_EVENT_LOADING });
 
-    const policeOfficerLocation = await getCurrentLocation();
+    const policeOfficers = await getPoliceOfficersLocal();
+    console.log(JSON.stringify(policeOfficers));
+
+    // here police officers doesnt have a location
+    
+    // get the closest officer to the coordinate
+    // const closestOfficer = policeOfficers.find((officer) => {
+    //     return calculateDistance(officer.coordinate, coordinate) < 1;
+    // });
+
+    // const policeOfficerLocation = closestOfficer.coordinate;
+    const policeOfficerLocation = getCurrentLocation();
 
     fetch(`${SERVER_URL}/api/event/create`, {
         method: 'POST',
@@ -59,6 +73,59 @@ export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, e
             });
         });
 }
+
+const getPoliceOfficersLocal = () => {
+    console.log('get police officers local frontend');
+    
+    return new Promise((resolve, reject) => {
+        fetch(`${SERVER_URL}/api/auth/policeOfficers`)
+            .then((res) => {
+                // console.log('res: ', res);
+                if (res.ok) {
+                    return res.json();
+                } else {
+                    throw new Error('Something went wrong');
+                }
+            })
+            .then((data) => {
+                // console.log('data: ', data);
+                resolve(data);
+            })
+            .catch((error) => {
+                console.error(error);
+                reject(error);
+            });
+    });
+};
+
+export const getPoliceOfficers = () => async (dispatch) => {
+    console.log('get police officers frontend');
+    dispatch({ type: GET_POLICE_OFFICERS_LOADING });
+    
+    fetch(`${SERVER_URL}/api/auth/policeOfficers`)
+        .then((res) => {
+            // console.log('res: ', res);
+            if (res.ok) {
+                return res.json();
+            } else {
+                throw new Error('Something went wrong');
+            }
+        })
+        .then((data) => {
+            // console.log('data: ', data);
+            dispatch({
+                type: GET_POLICE_OFFICERS_SUCCESS,
+                payload: data,
+            });
+        })
+        .catch((error) => {
+            console.error(error);
+            dispatch({
+                type: GET_POLICE_OFFICERS_FAILURE,
+                payload: 'Server error. Please try again.',
+            });
+        });
+};
 
 const getCurrentLocation = () => {
     return new Promise((resolve, reject) => {

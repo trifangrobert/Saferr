@@ -6,13 +6,20 @@ import * as Location from "expo-location";
 import MapViewDirections from "react-native-maps-directions";
 import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { getEvents, updateEvent, deleteEvent } from "../actions/eventActions";
+import { getEvents, getPoliceOfficers, updateEvent, deleteEvent } from "../actions/eventActions";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { Modal, useColorModeValue, ScrollView, Button, Icon, Text, StatusBar } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
 import ToggleAddEventButton from "./buttons/ToggleAddEventButton";
+import * as TaskManager from 'expo-task-manager';
+import { updateUserCoordinate } from "../actions/authActions";
+// import EventEmitter from 'EventEmitter'
 
 const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_APIKEY;
+
+// const locationEmitter = new EventEmitter();
+const LOCATION_TRACKING = 'location-tracking';
+const LOCATION_UPDATE = 'location-update';
 
 const MapComponent = () => {
   const navigation = useNavigation();
@@ -33,7 +40,9 @@ const MapComponent = () => {
   const dispatch = useDispatch();
   // dispatch get events  
   const { events: markers } = useSelector((state) => state.eventReducer);
+  const { policeOfficers: policeOfficersMarkers } = useSelector((state) => state.eventReducer);
   const { user } = useSelector((state) => state.authReducer);
+  const { isAuthenticated } = useSelector((state) => state.authReducer);
   const { newestEvent } = useSelector((state) => state.eventReducer);
   const [userPosition, setUserPosition] = useState(null);
 
@@ -71,9 +80,10 @@ const MapComponent = () => {
     //   setActiveMarker(null);
     // }, 5000);
 
-    //get events every 5 seconds
+    // get events every 5 seconds
     const interval = setInterval(() => {
       dispatch(getEvents());
+      dispatch(getPoliceOfficers());
     }, 3000);
 
     return () => clearInterval(interval);
@@ -85,10 +95,10 @@ const MapComponent = () => {
 
     if (newestEvent && newestEvent.coordinate) {		
       setPosition({		
-      latitude: newestEvent.coordinate.latitude,		
-      longitude: newestEvent.coordinate.longitude,		
-      latitudeDelta: 0.005, //0.0922,		
-      longitudeDelta: 0.005, // 0.0421,		
+        latitude: newestEvent.coordinate.latitude,		
+        longitude: newestEvent.coordinate.longitude,		
+        latitudeDelta: 0.005, // 0.0922,		
+        longitudeDelta: 0.005, // 0.0421,		
       });
 
       // setActiveMarker(newestEvent);
@@ -97,11 +107,17 @@ const MapComponent = () => {
   }, [newestEvent]);
 
   const getLocation = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
+    let resf = await Location.requestForegroundPermissionsAsync();
+    let resb = await Location.requestBackgroundPermissionsAsync();
+    if (resf.status !== "granted" && resb.status !== "granted") {
       setErrorMsg("Permission to access location was denied");
       return;
     }
+
+    if (isAuthenticated) {
+      startLocationTracking();
+    }
+
     let location = await Location.getCurrentPositionAsync({});
     setPosition({
       latitude: location.coords.latitude,
@@ -117,6 +133,83 @@ const MapComponent = () => {
       longitudeDelta: 0.0421,		
     });
   };
+
+  const startLocationTracking = async () => {
+    await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
+      accuracy: Location.Accuracy.BestForNavigation,
+      timeInterval: 1000,
+      showsBackgroundLocationIndicator: true,
+      foregroundService: {
+        notificationTitle: "Saferr Location Tracking",
+        notificationBody: "Used to track your location",
+        notificationColor: "#FF971D"
+      },
+      deferredUpdatesInterval: 1000,
+      distanceInterval: 1,
+    });
+
+    const hasStarted = await Location.hasStartedLocationUpdatesAsync(
+      LOCATION_TRACKING
+    );
+
+    console.log('tracking started?', hasStarted);
+
+    // locationEmitter.on(LOCATION_UPDATE, (locationData) => {
+    //   console.log('locationEmitter locationUpdate fired! locationData: ', locationData);
+    //   let coordinatesAmount = locationData.newRouteCoordinates.length - 1;
+
+    //   setUserPosition({
+    //       latitude: locationData.newRouteCoordinates[coordinatesAmount - 1].latitude,
+    //       longitude: locationData.newRouteCoordinates[coordinatesAmount - 1].longitude,
+    //       // routeCoordinates: this.state.routeCoordinates.concat(locationData.newRouteCoordinates)
+    //   })
+    // })
+  };
+
+  if (isAuthenticated) {
+
+    TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
+      if (error) {
+        console.log('LOCATION_TRACKING task ERROR:', error);
+        return;
+      }
+
+      if (!isAuthenticated) {
+        console.log('LOCATION_TRACKING task ERROR: user not authenticated');
+        return;
+      }
+
+      if (data) {
+        const { locations } = data;
+    
+        if (locations[0]) {
+          let lat = locations[0].coords.latitude;
+          let long = locations[0].coords.longitude;
+          
+          setUserPosition({		
+            latitude: lat,		
+            longitude: long,		
+            latitudeDelta: 0.0922,		
+            longitudeDelta: 0.0421,		
+          });
+
+          user.coordinate = {
+            latitude: lat,
+            longitude: long,
+            latitudeDelta: 0.0922,		
+            longitudeDelta: 0.0421,	
+          };
+
+          dispatch(updateUserCoordinate(user.email, user.coordinate));
+    
+          console.log(
+            `${new Date(Date.now()).toLocaleString()}: ${lat},${long}`
+          );
+        }
+      }
+    })
+
+  };  
 
   const onRegionChange = (region) => {
     setPosition({
@@ -222,6 +315,8 @@ const MapComponent = () => {
 
   const mapStyle = useColorModeValue(mapStyleLight, mapStyleDark);
 
+  // console.log(policeOfficersMarkers);
+
   return (
     <View style={styles.container}>
 	    <StatusBar barStyle="dark-content" />
@@ -257,6 +352,17 @@ const MapComponent = () => {
             >
             </Marker>
         ))}
+
+        {!enableReportEvent && policeOfficersMarkers.map((marker, index) => (
+          <Marker
+                key={index}
+                coordinate={marker.coordinate}
+                image={require("../assets/map-marker.png")}
+                // onPress={() => {handleMarkerPress(marker)}}
+            >
+            </Marker>
+        ))}
+
         {enableReportEvent && reportMarker && (
           <Marker
             coordinate={reportMarker.coordinate}

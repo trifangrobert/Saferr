@@ -29,6 +29,28 @@ const userSchema = new mongoose.Schema(
       enum: ["citizen", "police"],
       default: "citizen",
     },
+    coordinate: {
+      latitude: {
+          type: Number,
+          default: 0,
+          required: true,
+      },
+      longitude: {
+          type: Number,
+          default: 0,
+          required: true,
+      },
+      latitudeDelta: {  
+          type: Number,
+          default: 0,
+          // required: true,
+      },
+      longitudeDelta: {
+          type: Number,
+          default: 0,
+          // required: true,
+      },
+  },
   },
   { timestamps: true }
 );

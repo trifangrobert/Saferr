@@ -43,6 +43,7 @@ const LoginScreen = ({ navigation }) => {
 
     data.email = data.email.toLowerCase();
 
+
     dispatch(loginUser(data));
   };
 

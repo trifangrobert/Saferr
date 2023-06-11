@@ -6,6 +6,9 @@ import {
   LOGIN_FAILURE,
   LOGOUT_SUCCESS,
   AUTH_LOADING,
+  UPDATE_COORDINATE_FAILURE,
+  UPDATE_COORDINATE_LOADING,
+  UPDATE_COORDINATE_SUCCESS
 } from "../actions/types";
 
 const initialState = {
@@ -57,6 +60,27 @@ const authReducer = (state = initialState, action) => {
       return {
         ...state,
         isLoading: true,
+      };
+    case UPDATE_COORDINATE_LOADING:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case UPDATE_COORDINATE_SUCCESS:
+      return {
+        // change state.user.coordinate to action.payload.coordinate
+        ...state,
+        isLoading: false,
+        user: {
+          ...state.user,
+          coordinate: action.payload.coordinate,
+        }
+      };
+    case UPDATE_COORDINATE_FAILURE:
+      return {
+        ...state,
+        isLoading: false,
+        error: action.payload,
       };
     default:
       return state;
