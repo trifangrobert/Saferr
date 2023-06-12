@@ -38,6 +38,8 @@ export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, e
         return calculateDistance(officer.coordinate, coordinate) < 50;
     });
 
+    console.log('closestOfficers: ', closestOfficers);
+
     // const policeOfficerLocation = getCurrentLocation();
 
     fetch(`${SERVER_URL}/api/event/create`, {
@@ -65,7 +67,7 @@ export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, e
 
             // sendAlert(data.event, policeOfficerLocation, dispatch);
             closestOfficers.forEach((policeOfficer) => {
-                sendAlert(data.event, policeOfficer.coordinate, dispatch);
+                sendAlert(data.event, policeOfficer, dispatch);
             });
         })
         .catch((error) => {
@@ -165,7 +167,8 @@ const sendAlert = (event, policeOfficerLocation, dispatch) => {
     console.log('eventCoordinate: ', event.coordinate);
     console.log('policeOfficerLocation: ', policeOfficerLocation);
 
-    const distance = calculateDistance(event.coordinate, policeOfficerLocation.coords);
+    console.log('event.coordinate: ', event.coordinate, '\npoliceOfficerLocation: ', policeOfficerLocation);
+    const distance = calculateDistance(event.coordinate, policeOfficerLocation.coordinate);
     console.log('distance: ', distance);
 
     if (distance < 1) {
