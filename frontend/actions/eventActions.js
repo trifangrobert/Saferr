@@ -34,12 +34,11 @@ export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, e
     // here police officers doesnt have a location
     
     // get the closest officer to the coordinate
-    // const closestOfficer = policeOfficers.find((officer) => {
-    //     return calculateDistance(officer.coordinate, coordinate) < 1;
-    // });
+    const closestOfficers = policeOfficers.filter((officer) => {
+        return calculateDistance(officer.coordinate, coordinate) < 50;
+    });
 
-    // const policeOfficerLocation = closestOfficer.coordinate;
-    const policeOfficerLocation = getCurrentLocation();
+    // const policeOfficerLocation = getCurrentLocation();
 
     fetch(`${SERVER_URL}/api/event/create`, {
         method: 'POST',
@@ -63,7 +62,11 @@ export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, e
 
             // alert any police officers that are nearby
             console.log('coordinate: ', data.event.coordinate);
-            sendAlert(data.event, policeOfficerLocation, dispatch);
+
+            // sendAlert(data.event, policeOfficerLocation, dispatch);
+            closestOfficers.forEach((policeOfficer) => {
+                sendAlert(data.event, policeOfficer.coordinate, dispatch);
+            });
         })
         .catch((error) => {
             console.error(error);

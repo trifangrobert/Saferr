@@ -39,6 +39,8 @@ const loginUser = asyncHandler(async (req, res) => {
   console.log("loginUser arrived on server");
   const { email, password } = req.body;
 
+  console.log(req.body);
+
   // check if user email exists in db
   const user = await User.findOne({ email })
 

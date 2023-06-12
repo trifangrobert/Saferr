@@ -13,7 +13,7 @@ import {
 } from "./types";
 
 const SERVER_URL = process.env.SERVER_URL;
-// console.log(process.env.SERVER_URL);
+console.log(process.env.SERVER_URL);
 
 // Register user
 export const registerUser =
@@ -69,7 +69,6 @@ export const loginUser =
     console.log("loginUser action frontend");
     
     console.log(JSON.stringify({ email, password }));
-
 
     fetch(`${SERVER_URL}/api/auth/login`, {
       method: "POST",
