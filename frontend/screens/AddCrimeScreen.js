@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, Button, ScrollView, StyleSheet, TextInput } from "react-native";  
+import { StyleSheet } from "react-native";  
 import { useDispatch, useSelector } from "react-redux";
 import { createEvent } from "../actions/eventActions";
-import { Picker } from "@react-native-picker/picker";
+import { useColorModeValue, VStack, View, Text, Button, ScrollView, Select, Input } from "native-base";
 
 const options = [
     {
@@ -46,7 +46,7 @@ const AddCrimeScreen = ({ route, navigation }) => {
         console.log("user: ", user);
 
         if (!user) {
-            alert("You need to be logged in to report a crime");
+            alert("You need to be logged in to report a crime!");
             return;
         }
         let event = {
@@ -63,29 +63,49 @@ const AddCrimeScreen = ({ route, navigation }) => {
         dispatch(createEvent(event));
         navigation.navigate("Map");
     };
-    return (
-        <ScrollView>
-            <View style={styles.container}>
-                <Text style={styles.text}>Add crime screen</Text>
-                <Picker selectedValue={crimeType} onValueChange={(itemValue, itemIndex) => setCrimeType(itemValue)}>
-                    {options.map((option) => (
-                        <Picker.Item
-                            key={option.value}
-                            label={option.label}
-                            value={option.value}
-                        />
-                    ))}
-                </Picker>
-                <Text style={styles.text}>Describe the crime</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Describe the crime"
-                    onChangeText={(text) => setCrimeDescription(text)}
-                    value={crimeDescription}
-                />
-                <Button title="Report" onPress={handleReport} />
-            </View>
 
+    const backgroundColor = useColorModeValue('light.background', 'dark.background');
+    const textColor = useColorModeValue('light.text', 'dark.text');
+    const buttonColor = useColorModeValue('light.primary', 'dark.primary');
+
+    return (
+        <ScrollView bg={backgroundColor} contentContainerStyle={{ flex: 1, justifyContent:'center' }}>
+            <View style={styles.container}>
+                <VStack space={4} w="90%" maxW="500px" mx="auto" justifyContent="center" alignItems="center" safeAreaTop>
+
+                    <Text color={textColor} style={styles.title}>Report new crime</Text>
+                    <Select selectedValue={crimeType} borderColor={buttonColor} color={textColor} placeholder="Choose crime type" width="100%" onValueChange={(itemValue, itemIndex) => setCrimeType(itemValue)}>
+                        {options.map((option) => (
+                            <Select.Item
+                                key={option.value}
+                                label={option.label}
+                                value={option.value}
+                            />
+                        ))}
+                    </Select>
+
+                    <Text color={textColor} style={styles.title} marginTop={10}>Describe the crime</Text>
+                    <Input
+                        width="100%"
+                        placeholder="Crime description"
+                        placeholderTextColor={textColor}
+                        onChangeText={(text) => setCrimeDescription(text)}
+                        value={crimeDescription}
+                        variant="outline"
+                        borderColor={buttonColor}
+                        color={textColor}
+                    />
+
+                    <Button
+                        style={styles.button}
+                        rounded="md"
+                        bg={buttonColor}
+                        onPress={handleReport}
+                    >
+                        <Text color={textColor}>Report</Text>
+                    </Button>
+                </VStack>
+            </View>
         </ScrollView>
     );
 };
@@ -93,21 +113,21 @@ const AddCrimeScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        justifyContent: "center",
+        alignItems: "center",
         padding: 20,
     },
-    text: {
-        fontSize: 24,
+    title: {
+        fontSize: 26,
         fontWeight: "bold",
         marginBottom: 20,
+        padding: 10
     },
-    input: {
+    button: {
+        width: 100,
         height: 40,
-        borderColor: "gray",
-        borderWidth: 1,
-        borderRadius: 5,
-        marginBottom: 20,
-    },
+        marginTop: 20
+    }
 });
 
 export default AddCrimeScreen;

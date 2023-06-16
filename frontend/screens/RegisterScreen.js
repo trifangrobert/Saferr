@@ -2,13 +2,11 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Error from "../components/Error";
 import { registerUser } from "../actions/authActions";
-import { useColorModeValue, Button, Text, Input, ScrollView, Container, Header, Title, Form, Item, Stack} from 'native-base'; 
+import { useColorModeValue, View, Button, Text, Input, ScrollView, Spinner, Stack} from 'native-base'; 
 import {
-  View,
   StyleSheet,
   StatusBar,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 
 const RegisterScreen = ({ navigation }) => {
@@ -68,9 +66,9 @@ const RegisterScreen = ({ navigation }) => {
     // navigation.navigate("/forgot-password");
   };
 
-  const backgroundColor = useColorModeValue('light.background', 'dark.background');
+  const backgroundColor = useColorModeValue('light.primary', 'dark.background');
   const textColor = useColorModeValue('light.text', 'dark.text');
-  const submitButtonColor = useColorModeValue('light.primary', 'dark.primary');
+  const buttonColor = useColorModeValue('light.background', 'dark.primary');
 
   return (
     <ScrollView bg={backgroundColor} contentContainerStyle={{ flex: 1, justifyContent:'center' }}>
@@ -82,6 +80,7 @@ const RegisterScreen = ({ navigation }) => {
         <Stack space={4} w="90%" maxW="500px" mx="auto">
           <Input
             style={styles.input}
+            borderColor={buttonColor}
             placeholder="First Name"
             placeholderTextColor={textColor}
             onChangeText={(text) => setFirstName(text)}
@@ -91,6 +90,7 @@ const RegisterScreen = ({ navigation }) => {
           />
           <Input
             style={styles.input}
+            borderColor={buttonColor}
             placeholder="Last Name"
             placeholderTextColor={textColor}
             onChangeText={(text) => setLastName(text)}
@@ -100,6 +100,7 @@ const RegisterScreen = ({ navigation }) => {
           />
           <Input
             style={styles.input}
+            borderColor={buttonColor}
             placeholder="Email"
             placeholderTextColor={textColor}
             onChangeText={(text) => setEmail(text)}
@@ -110,6 +111,7 @@ const RegisterScreen = ({ navigation }) => {
           />
           <Input
             style={styles.input}
+            borderColor={buttonColor}
             placeholder="Password"
             placeholderTextColor={textColor}
             onChangeText={(text) => setPassword(text)}
@@ -119,6 +121,7 @@ const RegisterScreen = ({ navigation }) => {
           />
           <Input
             style={styles.input}
+            borderColor={buttonColor}
             placeholder="Confirm Password"
             placeholderTextColor={textColor}
             onChangeText={(text) => setConfirmPassword(text)}
@@ -126,28 +129,31 @@ const RegisterScreen = ({ navigation }) => {
             secureTextEntry={true}
             variant="outline"
           />
+
+          <View style={styles.buttonContainer}>
+            {/* <Button
+              style={styles.button}
+              title="Forgot Password"
+              onPress={handleForgotPassword}
+            /> */}
+            <Button
+              style={styles.button}
+              rounded="md"
+              bg={buttonColor}
+              onPress={() =>
+                submitForm({
+                  firstName,
+                  lastName,
+                  email,
+                  password,
+                  confirmPassword,
+                })
+              }
+            ><Text color={textColor}>Register</Text></Button>
+          </View>
+
+          {isLoading && <Spinner size="lg" color="warning.500" />}
         </Stack>
-        <View style={styles.buttonContainer}>
-          {/* <Button
-            style={styles.button}
-            title="Forgot Password"
-            onPress={handleForgotPassword}
-          /> */}
-          <Button
-            style={styles.button}
-            bg={submitButtonColor}
-            onPress={() =>
-              submitForm({
-                firstName,
-                lastName,
-                email,
-                password,
-                confirmPassword,
-              })
-            }
-          ><Text color={textColor}>Register</Text></Button>
-        </View>
-        <ActivityIndicator size="large" color="#0000ff" animating={isLoading} />
       </View>
     </ScrollView>
   );
@@ -161,7 +167,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
     marginBottom: 40,
     padding: 10

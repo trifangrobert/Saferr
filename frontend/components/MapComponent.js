@@ -6,13 +6,20 @@ import * as Location from "expo-location";
 import MapViewDirections from "react-native-maps-directions";
 import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { getEvents, updateEvent } from "../actions/eventActions";
+import { getEvents, getPoliceOfficers, updateEvent, deleteEvent } from "../actions/eventActions";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { Modal, useColorModeValue, ScrollView, Button, Icon, Text, StatusBar } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
 import ToggleAddEventButton from "./buttons/ToggleAddEventButton";
+import * as TaskManager from 'expo-task-manager';
+import { updateUserCoordinate } from "../actions/authActions";
+// import EventEmitter from 'EventEmitter'
 
 const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_APIKEY;
+
+// const locationEmitter = new EventEmitter();
+const LOCATION_TRACKING = 'location-tracking';
+const LOCATION_UPDATE = 'location-update';
 
 const MapComponent = () => {
   const navigation = useNavigation();
@@ -33,6 +40,11 @@ const MapComponent = () => {
   const dispatch = useDispatch();
   // dispatch get events  
   const { events: markers } = useSelector((state) => state.eventReducer);
+  const { policeOfficers: policeOfficersMarkers } = useSelector((state) => state.eventReducer);
+  const { user } = useSelector((state) => state.authReducer);
+  const { isAuthenticated } = useSelector((state) => state.authReducer);
+  const { newestEvent } = useSelector((state) => state.eventReducer);
+  const [userPosition, setUserPosition] = useState(null);
 
   const isFocused = useIsFocused();
 
@@ -68,21 +80,44 @@ const MapComponent = () => {
     //   setActiveMarker(null);
     // }, 5000);
 
-    //get events every 5 seconds
+    // get events every 5 seconds
     const interval = setInterval(() => {
       dispatch(getEvents());
+      dispatch(getPoliceOfficers());
     }, 3000);
 
     return () => clearInterval(interval);
 
   }, [dispatch]);
 
+  useEffect(() => {		
+    console.log("newestEvent", newestEvent);
+
+    if (newestEvent && newestEvent.coordinate) {		
+      setPosition({		
+        latitude: newestEvent.coordinate.latitude,		
+        longitude: newestEvent.coordinate.longitude,		
+        latitudeDelta: 0.005, // 0.0922,		
+        longitudeDelta: 0.005, // 0.0421,		
+      });
+
+      // setActiveMarker(newestEvent);
+      // setShowRoute(true);
+    }		
+  }, [newestEvent]);
+
   const getLocation = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
+    let resf = await Location.requestForegroundPermissionsAsync();
+    let resb = await Location.requestBackgroundPermissionsAsync();
+    if (resf.status !== "granted" && resb.status !== "granted") {
       setErrorMsg("Permission to access location was denied");
       return;
     }
+
+    if (isAuthenticated) {
+      startLocationTracking();
+    }
+
     let location = await Location.getCurrentPositionAsync({});
     setPosition({
       latitude: location.coords.latitude,
@@ -90,7 +125,91 @@ const MapComponent = () => {
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0421,
     });
+
+    setUserPosition({		
+      latitude: location.coords.latitude,		
+      longitude: location.coords.longitude,		
+      latitudeDelta: 0.0922,		
+      longitudeDelta: 0.0421,		
+    });
   };
+
+  const startLocationTracking = async () => {
+    await Location.startLocationUpdatesAsync(LOCATION_TRACKING, {
+      accuracy: Location.Accuracy.BestForNavigation,
+      timeInterval: 1000,
+      showsBackgroundLocationIndicator: true,
+      foregroundService: {
+        notificationTitle: "Saferr Location Tracking",
+        notificationBody: "Used to track your location",
+        notificationColor: "#FF971D"
+      },
+      deferredUpdatesInterval: 1000,
+      distanceInterval: 1,
+    });
+
+    const hasStarted = await Location.hasStartedLocationUpdatesAsync(
+      LOCATION_TRACKING
+    );
+
+    console.log('tracking started?', hasStarted);
+
+    // locationEmitter.on(LOCATION_UPDATE, (locationData) => {
+    //   console.log('locationEmitter locationUpdate fired! locationData: ', locationData);
+    //   let coordinatesAmount = locationData.newRouteCoordinates.length - 1;
+
+    //   setUserPosition({
+    //       latitude: locationData.newRouteCoordinates[coordinatesAmount - 1].latitude,
+    //       longitude: locationData.newRouteCoordinates[coordinatesAmount - 1].longitude,
+    //       // routeCoordinates: this.state.routeCoordinates.concat(locationData.newRouteCoordinates)
+    //   })
+    // })
+  };
+
+  if (isAuthenticated) {
+
+    TaskManager.defineTask(LOCATION_TRACKING, async ({ data, error }) => {
+      if (error) {
+        console.log('LOCATION_TRACKING task ERROR:', error);
+        return;
+      }
+
+      if (!isAuthenticated) {
+        console.log('LOCATION_TRACKING task ERROR: user not authenticated');
+        return;
+      }
+
+      if (data) {
+        const { locations } = data;
+    
+        if (locations[0]) {
+          let lat = locations[0].coords.latitude;
+          let long = locations[0].coords.longitude;
+          
+          setUserPosition({		
+            latitude: lat,		
+            longitude: long,		
+            latitudeDelta: 0.0922,		
+            longitudeDelta: 0.0421,		
+          });
+
+          user.coordinate = {
+            latitude: lat,
+            longitude: long,
+            latitudeDelta: 0.0922,		
+            longitudeDelta: 0.0421,	
+          };
+
+          dispatch(updateUserCoordinate(user.email, user.coordinate));
+    
+          console.log(
+            `${new Date(Date.now()).toLocaleString()}: ${lat},${long}`
+          );
+        }
+      }
+    })
+
+  };  
 
   const onRegionChange = (region) => {
     setPosition({
@@ -125,16 +244,20 @@ const MapComponent = () => {
         });
       }
     }
-    // else {
-      
-    //   if (!markers.includes(e.nativeEvent.coordinate)) {
+    else {
+      if (!markers.includes(e.nativeEvent.coordinate)) {
+        if (showRoute) {
+          setShowRoute(false);
+        }
+      }
     //     console.log(markers);
     //     console.log(e.nativeEvent.coordinate);
     //     console.log(!markers.includes(e.nativeEvent.coordinate));
+    //     setShowRoute(false);
     //     setShowModal(false);
     //     setActiveMarker(null);
     //   }
-    // }
+    }
   };
 
   const handleMarkerPress = (marker) => {
@@ -159,34 +282,44 @@ const MapComponent = () => {
 
   const handleReportMarkerPress = (marker) => {
     //redirect to add crime page
-    console.log("redirect to add crime page");
-    setEnableReportEvent(false);
-    navigation.navigate("AddCrime", {marker: marker});
+    if (enableReportEvent && reportMarker) {
+      console.log("redirect to add crime page");
+      setEnableReportEvent(false);
+      navigation.navigate("AddCrime", {marker: marker});
+    }
   }
 
   const onPressUpvote = (marker) => {
     console.log("Upvoted");
     // console.log(marker);
-	marker.upvotes += 1;
-	dispatch(updateEvent(marker._id, marker));
+    marker.upvotes += 1;
+    marker = dispatch(updateEvent(marker._id, marker));
   }
 
   const onPressDownvote = (marker) => {
     console.log("Downvoted");
     // console.log(marker);
-	marker.downvotes += 1;
-	dispatch(updateEvent(marker._id, marker));
+    marker.downvotes += 1;
+    marker = dispatch(updateEvent(marker._id, marker));
   }
 
+  const onPressRemoveEvent = (marker) => {
+    console.log("Remove event");
+    // console.log(marker);
+    setActiveMarker(null);
+    dispatch(deleteEvent(marker._id));
+  }
 
-  const modalBackgroundColor = useColorModeValue('light.background', 'dark.background');
+  const modalBackgroundColor = useColorModeValue('light.primary', 'dark.background');
   const modalTextColor = useColorModeValue('light.text', 'dark.text');
 
   const mapStyle = useColorModeValue(mapStyleLight, mapStyleDark);
 
+  // console.log(policeOfficersMarkers);
+
   return (
     <View style={styles.container}>
-	  <StatusBar barStyle="dark-content" />
+	    <StatusBar barStyle="dark-content" />
       <MapView
         style={styles.map}
         region={position}
@@ -196,7 +329,7 @@ const MapComponent = () => {
         customMapStyle={mapStyle}
         // customMapStyle={mapStyleDark}
         showsUserLocation={true}
-        //showsMyLocationButton={true}
+        showsMyLocationButton={true}
         showsCompass={true}
         showsScale={true}
         showsTraffic={false}
@@ -206,6 +339,8 @@ const MapComponent = () => {
         showsPointsOfInterest={false}
         onPress={onMapPress}
         initialRegion={position}
+        toolbarEnabled={false}
+        mapPadding={{top: 18}}
       >
 
         {!enableReportEvent && markers.map((marker, index) => (
@@ -217,6 +352,17 @@ const MapComponent = () => {
             >
             </Marker>
         ))}
+
+        {!enableReportEvent && policeOfficersMarkers.map((marker, index) => (
+          <Marker
+                key={index}
+                coordinate={marker.coordinate}
+                image={require("../assets/map-marker.png")}
+                // onPress={() => {handleMarkerPress(marker)}}
+            >
+            </Marker>
+        ))}
+
         {enableReportEvent && reportMarker && (
           <Marker
             coordinate={reportMarker.coordinate}
@@ -226,13 +372,13 @@ const MapComponent = () => {
             </Marker>
         )}
 
-        {/* {showRoute && (
+        {showRoute && (
           <MapViewDirections
-            origin={position}
-            destination={reportMarker.coordinate}
+            origin={userPosition}
+            destination={activeMarker.coordinate}
             apikey={GOOGLE_MAPS_APIKEY}
             strokeWidth={4}
-            strokeColor="#2786ab"
+            strokeColor="#3c9bd3"
             // optimizeWaypoints={true}
             lineDashPattern={[0]}
             drivingOptions={{
@@ -258,14 +404,14 @@ const MapComponent = () => {
               // });
             // }}
           />
-        )} */}
+        )}
 
-        {/* {activeMarker && (
+        {activeMarker && (
           <Marker
             coordinate={activeMarker.coordinate}
             image={require("../assets/map-marker.png")}
             onPress={() => {handleReportMarkerPress(activeMarker)}}
-            > */}
+            >
 
               {showModal && (<Modal
                 isOpen={showModal}
@@ -273,46 +419,83 @@ const MapComponent = () => {
                 size="lg"
               >
                 <Modal.Content bg={ modalBackgroundColor }>
-                  <Modal.CloseButton onPress={() => {setShowModal(false); setActiveMarker(null);}}/>
-                  <Modal.Header bg={ modalBackgroundColor }><Text color={modalTextColor} >{activeMarker.typeOfCrime}</Text></Modal.Header>
+                  <Modal.CloseButton onPress={() => {setShowModal(false); /*setActiveMarker(null);*/}}/>
+                  <Modal.Header bg={ modalBackgroundColor }>
+                    <Text color={modalTextColor} fontWeight={800} >{activeMarker.typeOfCrime}</Text>
+                  </Modal.Header>
                   <Modal.Body bg={ modalBackgroundColor }>
                     <ScrollView>
-                      <Text color={modalTextColor} >{activeMarker.crimeDescription}</Text>
+                      <Text color={modalTextColor} fontWeight={800}>{activeMarker.crimeDescription}</Text>
                     </ScrollView>
                   </Modal.Body>
                   <Modal.Footer bg={ modalBackgroundColor }>
-                    <Button.Group size="md" space={2} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    { (user && user.role != "police" || !user) && 
+                    ( <Button.Group size="md" space={3} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Button 
                           style={{ marginBottom: 10, marginTop: 10, backgroundColor: "green" }}
                           rightIcon={<Icon as={Ionicons} name="arrow-up" color="white" size="md"/>}
-                          onPress={() => { onPressUpvote(activeMarker); }}
+                          onPress={() => { onPressUpvote(activeMarker); setShowModal(false); }}
                           >
-                          <Text style={{color: "white"}}>Upvotes {activeMarker.upvotes}</Text>
-                      </Button>
-                      <Button 
-                          style={{ marginBottom: 10, marginTop: 10, backgroundColor: "red" }}
-                          rightIcon={<Icon as={Ionicons} name="arrow-down" color="white" size="md"/>}
-                          onPress={() => { onPressDownvote(activeMarker); }}
-                      >
-                          <Text style={{color: "white"}}>Downvotes {activeMarker.downvotes}</Text>
-                      </Button>
+                            <Text style={{color: "white"}}>Upvotes {activeMarker.upvotes}</Text>
+                        </Button>
+                        <Button 
+                            style={{ marginBottom: 10, marginTop: 10, backgroundColor: "red" }}
+                            rightIcon={<Icon as={Ionicons} name="arrow-down" color="white" size="md"/>}
+                            onPress={() => { onPressDownvote(activeMarker); setShowModal(false); }}
+                        >
+                            <Text style={{color: "white"}}>Downvotes {activeMarker.downvotes}</Text>
+                        </Button>
+                    </Button.Group> )}
+
+                    { user && user.role == "police" && 
+                    ( <Button.Group size="md" space={3} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Button 
+                            style={{ marginBottom: 10, marginTop: 10, backgroundColor: "green" }}
+                            rightIcon={<Icon as={Ionicons} name="person-add-outline" color="white" size="md"/>}
+                            onPress={() => { /*TODO join event*/ setShowModal(false); }}
+                        >
+                            <Text style={{color: "white"}}>Join event</Text>
+                        </Button>
+                        <Button 
+                            style={{ marginBottom: 10, marginTop: 10, backgroundColor: "red" }}
+                            rightIcon={<Icon as={Ionicons} name="close-circle-outline" color="white" size="md"/>}
+                            onPress={() => { onPressRemoveEvent(activeMarker); setShowModal(false); }}
+                        >
+                            <Text style={{color: "white"}}>Remove event</Text>
+                        </Button>
+                    </Button.Group> )}
+                    
+                    <Button.Group size="md" style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                        { !showRoute &&
+                        ( <Button
+                          style={{ marginBottom: 10, marginTop: 10, backgroundColor: "lightskyblue" }}
+                          onPress={() => { 
+                            setShowRoute(!showRoute);
+                            setShowModal(false);
+                            console.log(`Show route pressed: ${showRoute}. Active marker: ${activeMarker.coordinate.latitude}`);
+                            }}
+                        >
+                            <Text style={{color: "white"}}>Show route</Text>
+                        </Button> )} 
                     </Button.Group>
                   </Modal.Footer>
                 </Modal.Content>
               </Modal>)}
 
-            {/* </Marker>
-        )} */}
+            </Marker>
+        )}
 
       </MapView>
 
-	  <ToggleAddEventButton style={styles.toggleAddEventButton} onPress={() => {
-      console.log("Toggle add event button pressed");
-      setEnableReportEvent(!enableReportEvent);
-      setReportMarker(null);
-      setActiveMarker(null);
-      setShowModal(false);
-      }} selected={enableReportEvent}/>
+      <View style={styles.toggleAddEventButtonContainer}>
+        <ToggleAddEventButton onPress={() => {
+          console.log("Toggle add event button pressed");
+          setEnableReportEvent(!enableReportEvent);
+          setReportMarker(null);
+          setActiveMarker(null);
+          setShowModal(false);
+          }} selected={enableReportEvent}/>
+      </View>
 
       {/* {marker && !showRoute && (
                 //<View style={styles.ButtonContainer}> 
@@ -352,6 +535,7 @@ const MapComponent = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: "relative",
     backgroundColor: "#fff",
     // position: "relative",
     alignItems: 'center',
@@ -361,6 +545,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   map: {
+    flex: 1,
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
     overflow: 'hidden'
@@ -398,10 +583,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  toggleAddEventButton: {
-	position: "absolute",
-    top: 60,
-    left: 20
+  toggleAddEventButtonContainer: {
+    position: 'absolute',
+    top: 30,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
   }
   // myLocationButton: {
   //     position: 'absolute',

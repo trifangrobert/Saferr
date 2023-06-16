@@ -37,7 +37,9 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
   console.log("loginUser arrived on server");
-  const { email, password } = req.body
+  const { email, password } = req.body;
+
+  console.log(req.body);
 
   // check if user email exists in db
   const user = await User.findOne({ email })
@@ -83,5 +85,50 @@ const getUserProfile = asyncHandler(async (req, res) => {
   }
 })
 
+const updateUserCoordinate = asyncHandler(async (req, res) => {
+  console.log("updateUserProfile arrived on server");
 
-module.exports = { registerUser, loginUser, getUserProfile };
+  const { email, coordinate } = req.body;
+
+  // find user by email
+  const user = await User.findOne({ email });
+
+  if (user) {
+
+    // update user coordinate - generated using Github Copilot
+    user.coordinate = coordinate;
+
+    await user.save();
+
+    res.status(200).json({
+      _id: user._id,
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        coordinate: user.coordinate
+      },
+      token: "dummy_token" // generateToken(user._id),
+    });
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+})
+
+const getAllUsers = asyncHandler(async (req, res) => {
+  console.log("getAllUsers arrived on server");
+  const users = await User.find({});
+  res.json(users);
+});
+
+const getPoliceOfficers = asyncHandler(async (req, res) => {
+  console.log("getPoliceOfficers arrived on server");
+  const users = await User.find({ role: "police" });
+  res.json(users);
+});
+
+
+module.exports = { registerUser, loginUser, getUserProfile, updateUserCoordinate, getAllUsers, getPoliceOfficers };

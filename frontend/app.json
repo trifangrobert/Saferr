@@ -15,14 +15,28 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ],
+        "NSLocationWhenInUseUsageDescription" : "Your app needs access to your location to provide relevant information.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription" : "Your app needs access to your location for tracking purposes."
+
+      }
       
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon1.png",
         "backgroundColor": "#1e1e1e"
+      },
+      "permissions" : {
+        "ACCESS_FINE_LOCATION": "true",
+        "ACCESS_COARSE_LOCATION": "true"
       }
+
     },
     "web": {
       "favicon": "./assets/favicon1.png"
