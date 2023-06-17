@@ -14,7 +14,10 @@ import {
     SET_NEWEST_EVENT,
     GET_POLICE_OFFICERS_FAILURE,
     GET_POLICE_OFFICERS_LOADING,
-    GET_POLICE_OFFICERS_SUCCESS
+    GET_POLICE_OFFICERS_SUCCESS,
+    GET_CITIZENS_LOADING,
+    GET_CITIZENS_SUCCESS,
+    GET_CITIZENS_FAILURE
 } from '../actions/types';
 
 const initialState = { 
@@ -22,6 +25,7 @@ const initialState = {
     error: null,
     events: [],
     policeOfficers: [],
+    citizens: [],
     newestEvent: null,
 };
 
@@ -73,6 +77,23 @@ const eventReducer = (state = initialState, action) => {
                 policeOfficers: action.payload,
             };
         case GET_POLICE_OFFICERS_FAILURE:
+            return {
+                ...state,
+                isLoading: false,
+                error: action.payload,
+            };
+        case GET_CITIZENS_LOADING:
+            return {
+                ...state,
+                isLoading: true,
+            };
+        case GET_CITIZENS_SUCCESS:
+            return {
+                ...state,
+                isLoading: false,
+                citizens: action.payload,
+            };
+        case GET_CITIZENS_FAILURE:
             return {
                 ...state,
                 isLoading: false,

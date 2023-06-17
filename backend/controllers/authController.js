@@ -130,5 +130,11 @@ const getPoliceOfficers = asyncHandler(async (req, res) => {
   res.json(users);
 });
 
+const getCitizens = asyncHandler(async (req, res) => {
+  console.log("getCitizens arrived on server");
+  const users = await User.find({ role: "citizen" });
+  res.json(users);
+});
 
-module.exports = { registerUser, loginUser, getUserProfile, updateUserCoordinate, getAllUsers, getPoliceOfficers };
+
+module.exports = { registerUser, loginUser, getUserProfile, updateUserCoordinate, getAllUsers, getPoliceOfficers, getCitizens };

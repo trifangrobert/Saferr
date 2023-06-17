@@ -69,8 +69,8 @@ const AddCrimeScreen = ({ route, navigation }) => {
     const buttonColor = useColorModeValue('light.primary', 'dark.primary');
 
     return (
-        <ScrollView bg={backgroundColor} contentContainerStyle={{ flex: 1, justifyContent:'center' }}>
-            <View style={styles.container}>
+        // <ScrollView bg={backgroundColor} contentContainerStyle={{ flex: 1, justifyContent:'center' }}>
+            <View style={styles.container} bg={backgroundColor}>
                 <VStack space={4} w="90%" maxW="500px" mx="auto" justifyContent="center" alignItems="center" safeAreaTop>
 
                     <Text color={textColor} style={styles.title}>Report new crime</Text>
@@ -106,7 +106,7 @@ const AddCrimeScreen = ({ route, navigation }) => {
                     </Button>
                 </VStack>
             </View>
-        </ScrollView>
+        // </ScrollView>
     );
 };
 

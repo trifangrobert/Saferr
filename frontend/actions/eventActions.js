@@ -14,7 +14,10 @@ import {
     SET_NEWEST_EVENT,
     GET_POLICE_OFFICERS_FAILURE,
     GET_POLICE_OFFICERS_LOADING,
-    GET_POLICE_OFFICERS_SUCCESS
+    GET_POLICE_OFFICERS_SUCCESS,
+    GET_CITIZENS_FAILURE,
+    GET_CITIZENS_LOADING,
+    GET_CITIZENS_SUCCESS
 } from './types';
 
 import * as Location from 'expo-location';
@@ -56,6 +59,8 @@ export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, e
             }
         })
         .then((data) => {
+            // cand ajunge aici showRoute undefined
+
             console.log('data: ', data, '\nshowRoute: ', showRoute);
             dispatch({
                 type: ADD_EVENT_SUCCESS,
@@ -66,9 +71,15 @@ export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, e
             console.log('coordinate: ', data.event.coordinate);
 
             // sendAlert(data.event, policeOfficerLocation, dispatch);
-            closestOfficers.forEach((policeOfficer) => {
+            for (const policeOfficer of closestOfficers) {
                 sendAlert(data.event, policeOfficer, dispatch);
-            });
+                // error on sending to another device
+                break;
+            }
+
+            // closestOfficers.forEach((policeOfficer) => {
+            //     sendAlert(data.event, policeOfficer, dispatch);
+            // });
         })
         .catch((error) => {
             console.error(error);
@@ -127,6 +138,35 @@ export const getPoliceOfficers = () => async (dispatch) => {
             console.error(error);
             dispatch({
                 type: GET_POLICE_OFFICERS_FAILURE,
+                payload: 'Server error. Please try again.',
+            });
+        });
+};
+
+export const getCitizens = () => async (dispatch) => {
+    console.log('get citizens frontend');
+    dispatch({ type: GET_CITIZENS_LOADING });
+    
+    fetch(`${SERVER_URL}/api/auth/citizens`)
+        .then((res) => {
+            // console.log('res: ', res);
+            if (res.ok) {
+                return res.json();
+            } else {
+                throw new Error('Something went wrong');
+            }
+        })
+        .then((data) => {
+            // console.log('data: ', data);
+            dispatch({
+                type: GET_CITIZENS_SUCCESS,
+                payload: data,
+            });
+        })
+        .catch((error) => {
+            console.error(error);
+            dispatch({
+                type: GET_CITIZENS_FAILURE,
                 payload: 'Server error. Please try again.',
             });
         });

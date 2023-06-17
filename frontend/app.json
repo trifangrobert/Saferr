@@ -15,17 +15,7 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
-      "infoPlist": {
-        "UIBackgroundModes": [
-          "location",
-          "fetch"
-        ],
-        "NSLocationWhenInUseUsageDescription" : "Your app needs access to your location to provide relevant information.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription" : "Your app needs access to your location for tracking purposes."
-
-      }
-      
+      "supportsTablet": true   
     },
     "android": {
       "adaptiveIcon": {
