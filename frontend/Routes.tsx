@@ -33,9 +33,8 @@ export default function App() {
         <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        {/* <Stack.Screen name="Map" component={MapScreen} /> */}
         <Stack.Screen name="Map" component={MapScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="AddCrime" component={AddCrimeScreen} />
+        <Stack.Screen name="AddCrime" component={AddCrimeScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

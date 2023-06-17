@@ -7,10 +7,13 @@ import {
   LOGIN_FAILURE,
   LOGOUT_SUCCESS,
   AUTH_LOADING,
+  UPDATE_COORDINATE_FAILURE,
+  UPDATE_COORDINATE_LOADING,
+  UPDATE_COORDINATE_SUCCESS
 } from "./types";
 
 const SERVER_URL = process.env.SERVER_URL;
-// console.log(process.env.SERVER_URL);
+console.log(process.env.SERVER_URL);
 
 // Register user
 export const registerUser =
@@ -67,7 +70,6 @@ export const loginUser =
     
     console.log(JSON.stringify({ email, password }));
 
-
     fetch(`${SERVER_URL}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -114,7 +116,7 @@ export const getUserProfile = () => async (dispatch) => {
   fetch(`${SERVER_URL}/api/auth/profile`, {
     method: "GET",
     headers: { "Content-Type": "application/json"},
-    body: JSON.stringify({ email: email}),
+    body: JSON.stringify({ email: email }),
   })
     .then((res) => {
       if (res.ok) {
@@ -136,4 +138,41 @@ export const getUserProfile = () => async (dispatch) => {
       console.error(error);
     }
     );
+};
+
+export const updateUserCoordinate = ( email, coordinate ) => async (dispatch) => {
+  console.log("updateUserCoordinate action frontend");
+
+  dispatch({ type: UPDATE_COORDINATE_LOADING });
+
+  console.log(JSON.stringify({ email, coordinate }));
+  
+  fetch(`${SERVER_URL}/api/auth/update/coordinate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json"},
+    body: JSON.stringify({ email: email, coordinate: coordinate}),
+  })
+  .then((res) => {
+    // console.log(res);
+    if (res.ok) {
+      return res.json();
+    }
+    else {
+      throw new Error("Something went wrong");
+    }
+  })
+  .then((data) => {
+    console.log("data: ", data);
+    dispatch({
+      type: UPDATE_COORDINATE_SUCCESS,
+      payload: { user: data.user, token: data.token },
+    });
+  })
+  .catch((error) => {
+    console.error(error);
+    dispatch({
+      type: UPDATE_COORDINATE_FAILURE,
+      payload: "Server error. Please try again.",
+    });
+  });
 };

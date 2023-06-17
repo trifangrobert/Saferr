@@ -47,6 +47,14 @@ const eventSchema = new mongoose.Schema(
             type: Number,
             default: 0,
         },
+        usersThatUpvoted: {
+            type: Array,
+            default: [],
+        },
+        usersThatDownvoted: {
+            type: Array,
+            default: [],
+        }
     },
     { timestamps: true }
 );
