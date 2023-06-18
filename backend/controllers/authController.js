@@ -1,6 +1,5 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel.js");
-// import generateToken from '../utils/generateToken.js'
 
 const registerUser = asyncHandler(async (req, res) => {
   console.log("registerUser arrived on server");
@@ -136,5 +135,5 @@ const getCitizens = asyncHandler(async (req, res) => {
   res.json(users);
 });
 
-
+// export functions to be used in routes
 module.exports = { registerUser, loginUser, getUserProfile, updateUserCoordinate, getAllUsers, getPoliceOfficers, getCitizens };

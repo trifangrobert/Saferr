@@ -15,6 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/event", eventRoutes);
 
+// connect to MongoDB and start listening for requests
 mongoose.connect(process.env.MONGO_URI).then(() => {
     app.listen(port, '0.0.0.0', () => {
         console.log(`Connected to MongoDB and listening on port ${port}`);

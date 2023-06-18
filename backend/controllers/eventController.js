@@ -25,7 +25,6 @@ const createEvent = asyncHandler(async (req, res) => {
     downvotes,
   });
 
-  // console.log(event);
 
   if (event) {
     res.status(201).json({
@@ -46,7 +45,7 @@ const createEvent = asyncHandler(async (req, res) => {
   }
 });
 
-const getAllEvents = asyncHandler(async (req, res) => {
+const getAllEvents = asyncHandler(async (req, res) => { // get all events from db
   console.log("getAllEvents arrived on server");
   const events = await Event.find({});
   res.json(events);
@@ -58,7 +57,7 @@ const updateEvent = asyncHandler(async (req, res) => {
 
   const event = await Event.findById(req.params.id);
 
-  if (event) {
+  if (event) { // if event exists then update it
     event.typeOfCrime = typeOfCrime;
     event.crimeDescription = crimeDescription;
     event.coordinate = coordinate;
@@ -68,6 +67,7 @@ const updateEvent = asyncHandler(async (req, res) => {
     console.log(upvotes, downvotes);
     console.log(event.upvotes, event.downvotes);
 
+    // check if upvotes or downvotes have changed and if so, update them
     if(event.downvotes != downvotes || event.upvotes != upvotes) {
       const upVoted = event.usersThatUpvoted.includes(email);
       const downVoted = event.usersThatDownvoted.includes(email)
@@ -85,8 +85,6 @@ const updateEvent = asyncHandler(async (req, res) => {
         event.upvotes = upvotes;
         event.downvotes = downvotes;
 
-        // console.log("0");
-        // console.log(event);
       }
       else if(upVoted && !downVoted && event.downvotes != downvotes) {
         event.upvotes -= 1;
@@ -95,8 +93,6 @@ const updateEvent = asyncHandler(async (req, res) => {
         event.downvotes = downvotes;
         event.usersThatDownvoted.push(email);
 
-        // console.log("DOWN");
-        // console.log(event);
       }
       else if(!upVoted && downVoted && event.upvotes != upvotes) {
         event.downvotes -= 1;
@@ -105,8 +101,6 @@ const updateEvent = asyncHandler(async (req, res) => {
         event.upvotes = upvotes;
         event.usersThatUpvoted.push(email);
 
-        // console.log("UP");
-        // console.log(event);
       }
     }
 
@@ -114,6 +108,7 @@ const updateEvent = asyncHandler(async (req, res) => {
 
     console.log(event);
 
+    // send succes message with the updated event
     res.status(200).json({
           _id: event._id,
           event: {
@@ -149,4 +144,5 @@ const deleteEvent = asyncHandler(async (req, res) => {
   }
 });
 
+// export functions to be used in routes
 module.exports = { createEvent, deleteEvent, getAllEvents, updateEvent };
