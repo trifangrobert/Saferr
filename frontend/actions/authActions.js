@@ -61,7 +61,6 @@ export const loginUser =
 			dispatch({ type: AUTH_LOADING });
 
 			console.log("loginUser action frontend");
-
 			console.log(JSON.stringify({ email, password }));
 
 			fetch(`${SERVER_URL}/api/auth/login`, {

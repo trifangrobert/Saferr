@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// create schema for event document 
 const eventSchema = new mongoose.Schema(
     {
         typeOfCrime: {
