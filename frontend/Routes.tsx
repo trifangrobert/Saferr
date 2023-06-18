@@ -12,30 +12,30 @@ import AddCrimeScreen from './screens/AddCrimeScreen';
 const Stack = createNativeStackNavigator();
 
 async function prepareResources() {
-  try {
-    await SplashScreen.preventAutoHideAsync();
-  } catch (e) {
-    console.warn(e);
-  }
+	try {
+		await SplashScreen.preventAutoHideAsync();
+	} catch (e) {
+		console.warn(e);
+	}
 
-  SplashScreen.hideAsync();
+	SplashScreen.hideAsync();
 }
 
 export default function App() {
-  React.useEffect(() => {
-    prepareResources();
-  }, [])
+	React.useEffect(() => {
+		prepareResources();
+	}, [])
 
-  return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Map">
-        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
-        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Map" component={MapScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="AddCrime" component={AddCrimeScreen} options={{ headerShown: false }} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+	return (
+		<NavigationContainer>
+			<Stack.Navigator initialRouteName="Map">
+				<Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+				<Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
+				<Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
+				<Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+				<Stack.Screen name="Map" component={MapScreen} options={{ headerShown: false }} />
+				<Stack.Screen name="AddCrime" component={AddCrimeScreen} options={{ headerShown: false }} />
+			</Stack.Navigator>
+		</NavigationContainer>
+	);
 }

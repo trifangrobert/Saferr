@@ -3,9 +3,9 @@ import thunkMiddleware from 'redux-thunk';
 import rootReducer from '../reducers/rootReducer';
 
 const store = configureStore({
-  reducer: rootReducer,
-  middleware: [thunkMiddleware],
-  devTools: process.env.NODE_ENV !== 'production',
+	reducer: rootReducer,
+	middleware: [thunkMiddleware],
+	devTools: process.env.NODE_ENV !== 'production',
 });
 
 export { store };

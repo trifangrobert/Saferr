@@ -5,13 +5,13 @@ import { store } from "./store/store";
 import { theme } from "./Theme";
 
 const App = () => {
-  return (
-      <Provider store={store}>
-          <NativeBaseProvider theme={theme} colorModeManager={theme.colorModeManager}>
-            <Routes />
-          </NativeBaseProvider>
-      </Provider>
-  );
+	return (
+		<Provider store={store}>
+			<NativeBaseProvider theme={theme} colorModeManager={theme.colorModeManager}>
+				<Routes />
+			</NativeBaseProvider>
+		</Provider>
+	);
 };
 
 export default App;
