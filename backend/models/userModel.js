@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
+// create schema for user document
 const userSchema = new mongoose.Schema(
   {
     firstName: {
@@ -55,6 +56,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// hash password before saving to db for security
 userSchema.pre("save", async function (next) {
   const user = this;
   if (user.isModified("password")) {
