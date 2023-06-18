@@ -91,7 +91,7 @@ export const createEvent = ({ typeOfCrime, crimeDescription, coordinate, date, e
 }
 
 const getPoliceOfficersLocal = () => {
-    console.log('get police officers local frontend');
+    // console.log('get police officers local frontend');
     
     return new Promise((resolve, reject) => {
         fetch(`${SERVER_URL}/api/auth/policeOfficers`)
@@ -115,7 +115,7 @@ const getPoliceOfficersLocal = () => {
 };
 
 export const getPoliceOfficers = () => async (dispatch) => {
-    console.log('get police officers frontend');
+    // console.log('get police officers frontend');
     dispatch({ type: GET_POLICE_OFFICERS_LOADING });
     
     fetch(`${SERVER_URL}/api/auth/policeOfficers`)
@@ -144,7 +144,7 @@ export const getPoliceOfficers = () => async (dispatch) => {
 };
 
 export const getCitizens = () => async (dispatch) => {
-    console.log('get citizens frontend');
+    // console.log('get citizens frontend');
     dispatch({ type: GET_CITIZENS_LOADING });
     
     fetch(`${SERVER_URL}/api/auth/citizens`)
@@ -245,6 +245,8 @@ const sendAlert = (event, policeOfficerLocation, dispatch) => {
 export const getEvents = () => async (dispatch) => {
     console.log('getEvents action frontend');
     dispatch({ type: GET_EVENTS_LOADING });
+
+    console.log(`${SERVER_URL}/api/event/all`);
 
     fetch(`${SERVER_URL}/api/event/all`)
         .then((res) => {

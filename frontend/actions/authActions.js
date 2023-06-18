@@ -70,6 +70,7 @@ export const loginUser =
     
     console.log(JSON.stringify({ email, password }));
 
+
     fetch(`${SERVER_URL}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
